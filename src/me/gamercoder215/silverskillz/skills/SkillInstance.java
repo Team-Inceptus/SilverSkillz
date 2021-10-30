@@ -7,22 +7,22 @@ public class SkillInstance {
 	private final Skill skill;
 	private final SilverPlayer player;
 
-	private int progress;
+	private double progress;
 	private byte level;
 
-	protected SkillInstance(Skill s, SilverPlayer p) {
+	public SkillInstance(Skill s, SilverPlayer p) {
 		this.player = p;
 		this.skill = s;
 
 		this.progress = p.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(s.getName()).getInt("progress");
-		this.progress = p.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(s.getName()).getByte("level");
+		this.level = (byte) p.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(s.getName()).getInt("level");
 	}
 
-	public Skill getSkill() {
+	public final Skill getSkill() {
 		return this.skill;
 	}
 
-	public SilverPlayer getPlayer() {
+	public final SilverPlayer getPlayer() {
 		return this.player;
 	}
 
@@ -33,27 +33,26 @@ public class SkillInstance {
 		player.reloadValues();
 	}
 
-	public byte getLevel() {
+	public final byte getLevel() {
 		return this.level;
 	}
 
-	public void addProgress() {
-		addProgress(1);
+	public boolean addProgress() {
+		return addProgress(1);
 	}
 
 	public void removeProgress() {
 		removeProgress(1);
 	}
-
 	public void setLevel(byte level) {
 		if (level < 0 || level > 100) throw new IllegalArgumentException("Level cannot be greater than 100.");
 
-		this.level = level;
+		this.level = level; 
 		this.progress = Skill.toMinimumProgress(level);
 		reload();
 	}
 
-	public void setProgress(int progress) {
+	public void setProgress(double progress) {
 		if (progress < 0) throw new IllegalArgumentException("Progress cannot be less than 0.");
 
 		this.progress = progress;
@@ -61,19 +60,26 @@ public class SkillInstance {
 		reload();
 	}
 
-	public int getProgress() {
+	public final double getProgress() {
 		return this.progress;
 	}
 
-	public void addProgress(int add) {
-		if (getProgress() + add > Skill.MAX_VALUE) throw new IllegalArgumentException("Progress cannot be greater than 1 billion.");
+	public boolean addProgress(double add) {
+		if (getProgress() + add > Skill.MAX_PROGRESS_VALUE) throw new IllegalArgumentException("Progress cannot be greater than 1 billion.");
 
 		this.progress += add;
+		
+		boolean hasLeveled = false;
+		
+		if (Skill.toLevel(this.progress) != this.level) hasLeveled = true;
+		
 		this.level = Skill.toLevel(this.progress);
 		reload();
+		
+		return hasLeveled;
 	}
 
-	public void removeProgress(int remove) {
+	public void removeProgress(double remove) {
 		if (getProgress() - remove < 0) throw new IllegalArgumentException("Progress cannot be less than 0.");
 
 		this.progress -= remove;
