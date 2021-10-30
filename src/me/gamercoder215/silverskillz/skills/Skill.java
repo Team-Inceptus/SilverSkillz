@@ -1,15 +1,29 @@
 package me.gamercoder215.silverskillz.skills;
 
-import java.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public enum Skill {
 
 	COMBAT("combat", new Statistic[] {
-		Statistic.DAMAGE_DEALT,
 		Statistic.DAMAGE_ABSORBED,
 		Statistic.DAMAGE_TAKEN,
 		Statistic.DAMAGE_RESISTED,
-		Statistic.KILL_ENTITY,
 		Statistic.RAID_WIN,
 		Statistic.RAID_TRIGGER,
 		Statistic.DEATHS,		
@@ -72,46 +86,61 @@ public enum Skill {
 	BUILDER("builder", new Statistic[] {
 		Statistic.MINE_BLOCK,
 	}, getModifier("builder"), Material.OAK_PLANKS),
+	ADVANCER("advancer", null, getModifier("advancer"), Material.GOLDEN_APPLE),
+	FARMING("farming", new Statistic[] {
+		Statistic.ANIMALS_BRED
+	}, getModifier("farming"), Material.GOLDEN_HOE),
+	BREWER("brewer", null, getModifier("brewer"), Material.BREWING_STAND),
+	SMITHING("smithing", null, getModifier("smithing"), Material.IRON_AXE);
 
-	;
-
-	protected static final int MAX_VALUE = 1000000000;
+	public static final double MAX_PROGRESS_VALUE = 1000000000;
 
 	private final String name;
-	private final Statistic[] increases;
-	private final Map<Attribute, Integer> modifiers;
+	private Statistic[] increases = new Statistic[] {};
+	private final Map<Attribute, Double> modifiers;
 	private final Material icon;
+	private final Inventory inv;
 
-	private Skill(String name, Statistic[] supported, Map<Attribute, Integer> modifiers, Material icon) {
+	private Skill(String name, Statistic[] supported, Map<Attribute, Double> modifiers, Material icon) {
 		this.name = name;
 		this.increases = supported;
 		this.modifiers = modifiers;
 		this.icon = icon;
+		
+		this.inv = null;
 	}
-
-	private static final Map<Attribute, Integer> getModifier(String name) {
-		Map<Attribute, Integer> modifiers = new HashMap<>();
+	
+	protected static final Map<Attribute, Double> getModifier(String name) {
+		Map<Attribute, Double> modifiers = new HashMap<>();
+		
+		for (Attribute s : Attribute.values()) {
+			modifiers.put(s, 1d);
+		}
+		
 		if (name.equalsIgnoreCase("combat")) {
 			modifiers.put(Attribute.GENERIC_ATTACK_DAMAGE, 1.25);
 			modifiers.put(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 1.1);
 			
 			return modifiers;
+		} else if (name.equalsIgnoreCase("")) {
+			return modifiers;
 		} else return modifiers;
 	}
 
-	public static final int getMaxProgressValue() {
-		return MAX_VALUE;
+	
+	public final Inventory getSkillInventory() {
+		return this.inv;
 	}
-
-	public Material getIcon() {
+	
+	public final Material getIcon() {
 		return this.icon;
 	}
 
-	public Statistic[] getSupportedStatistics() {
-		return this.supported;
+	public final Statistic[] getSupportedStatistics() {
+		return this.increases;
 	}
 
-	public Map<Attribute, Integer> getModifiers() {
+	public final Map<Attribute, Double> getModifiers() {
 		return this.modifiers;
 	}
 
@@ -125,11 +154,47 @@ public enum Skill {
 		return icon;
 	}
 
-	public String getName() {
+	public final String getName() {
 		return this.name;
 	}
-
-	public static int toMinimumProgress(byte level) {
+	
+	public String toString() {
+		return this.name;
+	}
+	
+	public final String getCapitalizedName() {
+		return (getName().substring(0, 1).toUpperCase() + getName().substring(1));
+	}
+	
+	// Public Static Methods
+	
+	
+	public static final double matchMinCombatExperience(EntityType t) {
+		LivingEntity entity = (LivingEntity) Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), t);
+		double defaultHP = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+		entity.remove();
+		
+		return (defaultHP / 5);
+	}
+	
+	public static final double matchMinCombatExperience(LivingEntity e) {
+		double hp = e.getHealth();
+		
+		return (hp / 5);
+	}
+	
+	@Nullable
+	public static Skill matchSkill(String name) {
+		for (Skill s : Skill.values()) {
+			if (s.getName().equalsIgnoreCase(name)) {
+				return s;
+			}
+		}
+		
+		return null;
+	}
+	
+	public static final double toMinimumProgress(byte level) {
 		if (level < 0 || level > 100) {
 			throw new IllegalArgumentException("Level cannot be less than 0 or bigger than 100");
 		}
@@ -142,12 +207,12 @@ public enum Skill {
 			return (90000 + (1000 * level));
 		} else if (level > 50 && level <= 80) {
 			return (650000 + (5000 * level));
-		} else if (level > 80) {
+		} else {
 			return (3000000 + (20000 * level));
 		}
 	}
 
-	public static byte toLevel(int progress) {
+	public static final byte toLevel(double progress) {
 		if (progress < 200) return 0;
 		else if (progress <= 1550) {
 			return ((byte) Math.floor((progress - 50) / 150));
