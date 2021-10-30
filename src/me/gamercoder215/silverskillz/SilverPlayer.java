@@ -1,6 +1,19 @@
 package me.gamercoder215.silverskillz;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
+
+import javax.annotation.Nullable;
+
+import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import me.gamercoder215.silverskillz.skills.Skill;
 import me.gamercoder215.silverskillz.skills.SkillInstance;
 
@@ -14,36 +27,34 @@ public class SilverPlayer {
 	private final FileConfiguration playerConfig;
 
 	private SilverPlayer(OfflinePlayer p) {
-		this.plugin = Main.instance;
+		this.plugin = JavaPlugin.getPlugin(SilverSkillz.class);
 		
 		this.player = p;
 
-		try {
-			this.directory = new File(plugin.getDataFolder().getPath() + "players");
+		this.directory = new File(plugin.getDataFolder().getPath() + "players");
 
-			if (!(this.directory.exists())) {
-				this.directory.mkdir();
-			}
-
-			this.file = new File(this.directory, p.getUniqueId().toString() + ".yml");
-
-			if (!(this.file.exists())) {
-				file.createNewFile();
-			}
-
-			this.playerConfig = = YamlConfiguration.loadConfiguration(file);
-			
-			reloadValues();
-
-			
-		} catch (IOException e) {
-			this.plugin.getLogger().info("Error while creating SilverPlayer");
-			e.printStackTrace();
+		if (!(this.directory.exists())) {
+			this.directory.mkdir();
 		}
+
+		this.file = new File(this.directory, p.getUniqueId().toString() + ".yml");
+
+		if (!(this.file.exists())) {
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		
+		this.playerConfig = YamlConfiguration.loadConfiguration(this.file);
 
 	}
 
 	public void reloadValues() {
+		OfflinePlayer p = this.player;
+		
 		if (this.playerConfig.get("uuid") == null) {
 			this.playerConfig.set("uuid", p.getUniqueId().toString());
 		}
@@ -120,11 +131,31 @@ public class SilverPlayer {
 			}
 		}
 
-		this.playerConfig.save(this.file);
+		try {
+			this.playerConfig.save(this.file);
+		} catch (IOException e) {
+			plugin.getLogger().info("Error reloading config");
+			e.printStackTrace();
+		}
 	}
-
-	public Player getPlayer() {
+	
+	public OfflinePlayer getPlayer() {
 		return this.player;
+	}
+	
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SilverPlayer)) return false;
+		
+		SilverPlayer other = (SilverPlayer) obj;
+		
+		return (other.getPlayer().getUniqueId().equals(this.getPlayer().getUniqueId()));
+	}
+	
+	@Nullable
+	public Player getOnlinePlayer() {
+		if (getPlayer().isOnline()) {
+			return ((Player) getPlayer());
+		} else return null;
 	}
 
 	public FileConfiguration getPlayerConfig() {
