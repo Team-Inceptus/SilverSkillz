@@ -1,11 +1,16 @@
 package me.gamercoder215.silverskillz.skills;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -13,13 +18,26 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import me.gamercoder215.silverskillz.SilverPlayer;
+import me.gamercoder215.silverskillz.SilverSkillz;
+
+/**
+ * Enum containing skills for the plugin
+ * @author GamerCoder215
+ *
+ */
 public enum Skill {
-
+	/**
+	 * Skill related to combat and fighting
+	 */
 	COMBAT("combat", new Statistic[] {
 		Statistic.DAMAGE_ABSORBED,
 		Statistic.DAMAGE_TAKEN,
@@ -28,15 +46,24 @@ public enum Skill {
 		Statistic.RAID_TRIGGER,
 		Statistic.DEATHS,		
 	}, getModifier("combat"), Material.DIAMOND_SWORD),
+	/**
+	 * Skill related to social interactions
+	 */
 	SOCIAL("social", new Statistic[] {
 		Statistic.TRADED_WITH_VILLAGER,
 		Statistic.ANIMALS_BRED
 	}, getModifier("social"), Material.EMERALD),
+	/**
+	 * Skill related to water activities
+	 */
 	AQUATICS("aquatics", new Statistic[] {
 		Statistic.FISH_CAUGHT,
 		Statistic.WALK_ON_WATER_ONE_CM,
 		Statistic.WALK_UNDER_WATER_ONE_CM,
 	}, getModifier("aquatics"), Material.HEART_OF_THE_SEA),
+	/**
+	 * Skill related to large-scale player movement
+	 */
 	TRAVELER("traveler", new Statistic[] {
 		Statistic.FLY_ONE_CM,
 		Statistic.HORSE_ONE_CM,
@@ -53,9 +80,15 @@ public enum Skill {
 		Statistic.WALK_ON_WATER_ONE_CM,
 		Statistic.WALK_UNDER_WATER_ONE_CM,
 	}, getModifier("traveler"), Material.IRON_BOOTS),
+	/**
+	 * Skill related to the breaking of blocks
+	 */
 	MINING("mining", new Statistic[] {
 		Statistic.MINE_BLOCK
 	}, getModifier("mining"), Material.STONE_PICKAXE),
+	/**
+	 * Skill related to miscellaneous activities
+	 */
 	HUSBANDRY("husbandry", new Statistic[] {
 		Statistic.CAULDRON_FILLED,
 		Statistic.BELL_RING,
@@ -67,30 +100,57 @@ public enum Skill {
 		Statistic.TARGET_HIT,
 		Statistic.USE_ITEM
 	}, getModifier("husbandry"), Material.WHEAT),
+	/**
+	 * Skill related to housekeeping and tidiness
+	 */
 	CLEANER("cleaner", new Statistic[]{
 		Statistic.ARMOR_CLEANED,
 		Statistic.BANNER_CLEANED,
 		Statistic.CLEAN_SHULKER_BOX
 	}, getModifier("cleaner"), Material.WATER_BUCKET),
+	/**
+	 * Skill related to enchanting various items
+	 */
 	ENCHANTER("enchanter", new Statistic[] {
 		Statistic.ITEM_ENCHANTED
 	}, getModifier("enchanter"), Material.ENCHANTING_TABLE),
+	/**
+	 * Skill related to picking up and collecting various items
+	 */
 	COLLECTOR("collector", new Statistic[] {
 		Statistic.PICKUP,
 		Statistic.DROP,
 		Statistic.DROP_COUNT
 	}, getModifier("collector"), Material.BUNDLE),
+	/**
+	 * Skill related to ranged attacks
+	 */
 	ARCHERY("archery", new Statistic[] {
 		Statistic.TARGET_HIT
 	}, getModifier("archery"), Material.BOW),
+	/**
+	 * Skill related to the placing and removing of blocks
+	 */
 	BUILDER("builder", new Statistic[] {
 		Statistic.MINE_BLOCK,
 	}, getModifier("builder"), Material.OAK_PLANKS),
+	/**
+	 * Skill related to completing advancements
+	 */
 	ADVANCER("advancer", null, getModifier("advancer"), Material.GOLDEN_APPLE),
+	/**
+	 * Skill related to farming and its activities
+	 */
 	FARMING("farming", new Statistic[] {
 		Statistic.ANIMALS_BRED
 	}, getModifier("farming"), Material.GOLDEN_HOE),
+	/**
+	 * Skill related to brewery
+	 */
 	BREWER("brewer", null, getModifier("brewer"), Material.BREWING_STAND),
+	/**
+	 * Skill related to the using of various furnaces and creating weapons through them
+	 */
 	SMITHING("smithing", null, getModifier("smithing"), Material.IRON_AXE);
 
 	public static final double MAX_PROGRESS_VALUE = 1000000000;
@@ -99,19 +159,346 @@ public enum Skill {
 	private Statistic[] increases = new Statistic[] {};
 	private final Map<Attribute, Double> modifiers;
 	private final Material icon;
-	private final Inventory inv;
-
+	
 	private Skill(String name, Statistic[] supported, Map<Attribute, Double> modifiers, Material icon) {
 		this.name = name;
 		this.increases = supported;
 		this.modifiers = modifiers;
 		this.icon = icon;
+	}
+	
+	protected static void awardLevelUp(SilverPlayer p, Skill s, boolean hasLeveled, double increaseBy) {
+		if (p.getOnlinePlayer() == null) return;
+		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;
 		
-		this.inv = null;
+		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + "+" + df.format(increaseBy) + " " + s.getCapitalizedName() + " Experience");
+		
+		if (hasLeveled) {
+			Player pl = p.getOnlinePlayer();
+			
+			pl.sendTitle(ChatColor.GOLD + s.getCapitalizedName() + " Has leveled Up!", "", 5, 100, 10);
+		}
+	}
+	
+	/**
+	 * The central menu for the /skill command
+	 * @return Inventory containing menu
+	 */
+	public static final Inventory getMenu() {
+		Inventory menu = SkillUtils.generateGUI(54, ChatColor.DARK_AQUA + "Player Skills");
+		
+		menu.setItem(19, COMBAT.getIconAsStack());
+		menu.setItem(21, ARCHERY.getIconAsStack());
+		menu.setItem(23, BREWER.getIconAsStack());
+		menu.setItem(25, FARMING.getIconAsStack());
+		menu.setItem(31, SOCIAL.getIconAsStack());
+		menu.setItem(28, TRAVELER.getIconAsStack());
+		menu.setItem(29, AQUATICS.getIconAsStack());
+		menu.setItem(30, MINING.getIconAsStack());
+		menu.setItem(32, ENCHANTER.getIconAsStack());
+		menu.setItem(33, SMITHING.getIconAsStack());
+		menu.setItem(34, ADVANCER.getIconAsStack());
+		menu.setItem(39, COLLECTOR.getIconAsStack());
+		menu.setItem(40, HUSBANDRY.getIconAsStack());
+		menu.setItem(41, CLEANER.getIconAsStack());
+		
+		return menu;
+	}
+	
+	/**
+	 * Generate inventory pages for the skill
+	 * @param p The player to use.
+	 * @return A Map listing the inventories by page (starting at 0)
+	 */
+	public final Map<Integer, Inventory> generateInventories(SilverPlayer p) {
+		Map<Integer, Inventory> pages = new HashMap<>();
+		
+		Map<Short, ItemStack> panels = getInventoryIcons(this, p);
+		
+		ItemStack headInfo = new ItemStack(Material.PLAYER_HEAD);
+		SkullMeta headMeta = (SkullMeta) headInfo.getItemMeta();
+		headMeta.setOwningPlayer(p.getPlayer());
+		headMeta.setDisplayName(ChatColor.GOLD + p.getPlayer().getName() + "'s " + this.getCapitalizedName() + " Statistics");
+		List<String> info = new ArrayList<>();
+		info.add(ChatColor.GREEN + SkillUtils.withSuffix(p.getSkill(this).getProgress()) + " Total Progress");
+		info.add(ChatColor.DARK_GREEN + "Level " + Short.toString(p.getSkill(this).getLevel()));
+		headMeta.setLore(info);
+		headInfo.setItemMeta(headMeta);
+		
+		ItemStack arrowForward = new ItemStack(Material.ARROW);
+		ItemMeta forwardMeta = arrowForward.getItemMeta();
+		forwardMeta.setDisplayName(ChatColor.GREEN + "Next Page");
+		arrowForward.setItemMeta(forwardMeta);
+		
+		ItemStack arrowBack = new ItemStack(Material.ARROW);
+		ItemMeta backMeta = arrowForward.getItemMeta();
+		backMeta.setDisplayName(ChatColor.GREEN + "Previous Page");
+		arrowBack.setItemMeta(backMeta);
+		
+		ItemStack menuBack = new ItemStack(Material.BEACON);
+		ItemMeta menuMeta = menuBack.getItemMeta();
+		menuMeta.setDisplayName(ChatColor.RED + "Back");
+		menuBack.setItemMeta(menuMeta);
+		// First Page
+		Inventory firstPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill");
+		
+		firstPage.setItem(9, getIconAsStack());
+		firstPage.setItem(4, headInfo);
+		firstPage.setItem(49, menuBack);
+		firstPage.setItem(50, arrowForward);
+		
+		firstPage.setItem(10, panels.get((short) 0));
+		firstPage.setItem(19, panels.get((short) 1));
+		firstPage.setItem(28, panels.get((short) 2));
+		firstPage.setItem(37, panels.get((short) 3));
+		firstPage.setItem(38, panels.get((short) 4));
+		firstPage.setItem(39, panels.get((short) 5));
+		firstPage.setItem(30, panels.get((short) 6));
+		firstPage.setItem(21, panels.get((short) 7));
+		firstPage.setItem(12, panels.get((short) 8));
+		firstPage.setItem(13, panels.get((short) 9));
+		firstPage.setItem(14, panels.get((short) 10));
+		firstPage.setItem(23, panels.get((short) 11));
+		firstPage.setItem(32, panels.get((short) 12));
+		firstPage.setItem(41, panels.get((short) 13));
+		firstPage.setItem(42, panels.get((short) 14));
+		firstPage.setItem(43, panels.get((short) 15));
+		firstPage.setItem(34, panels.get((short) 16));
+		firstPage.setItem(25, panels.get((short) 17));
+		firstPage.setItem(16, panels.get((short) 18));
+		firstPage.setItem(17, panels.get((short) 19));
+		
+		pages.put(0, firstPage);
+		// Second Page
+		Inventory secondPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 2");
+		
+		secondPage.setItem(9, getIconAsStack());
+		secondPage.setItem(4, headInfo);
+		secondPage.setItem(50, arrowForward);
+		secondPage.setItem(48, arrowBack);
+		
+		secondPage.setItem(10, panels.get((short) 20));
+		secondPage.setItem(19, panels.get((short) 21));
+		secondPage.setItem(28, panels.get((short) 22));
+		secondPage.setItem(37, panels.get((short) 23));
+		secondPage.setItem(38, panels.get((short) 24));
+		secondPage.setItem(39, panels.get((short) 25));
+		secondPage.setItem(30, panels.get((short) 26));
+		secondPage.setItem(21, panels.get((short) 27));
+		secondPage.setItem(12, panels.get((short) 28));
+		secondPage.setItem(13, panels.get((short) 29));
+		secondPage.setItem(14, panels.get((short) 30));
+		secondPage.setItem(23, panels.get((short) 31));
+		secondPage.setItem(32, panels.get((short) 32));
+		secondPage.setItem(41, panels.get((short) 33));
+		secondPage.setItem(42, panels.get((short) 34));
+		secondPage.setItem(43, panels.get((short) 35));
+		secondPage.setItem(34, panels.get((short) 36));
+		secondPage.setItem(25, panels.get((short) 37));
+		secondPage.setItem(16, panels.get((short) 38));
+		secondPage.setItem(17, panels.get((short) 39));
+		
+		pages.put(1, secondPage);
+		// Third Page
+		Inventory thirdPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 3");
+		
+		thirdPage.setItem(9, getIconAsStack());
+		thirdPage.setItem(4, headInfo);
+		thirdPage.setItem(50, arrowForward);
+		thirdPage.setItem(48, arrowBack);
+		
+		thirdPage.setItem(10, panels.get((short) 40));
+		thirdPage.setItem(19, panels.get((short) 41));
+		thirdPage.setItem(28, panels.get((short) 42));
+		thirdPage.setItem(37, panels.get((short) 43));
+		thirdPage.setItem(38, panels.get((short) 44));
+		thirdPage.setItem(39, panels.get((short) 45));
+		thirdPage.setItem(30, panels.get((short) 46));
+		thirdPage.setItem(21, panels.get((short) 47));
+		thirdPage.setItem(12, panels.get((short) 48));
+		thirdPage.setItem(13, panels.get((short) 49));
+		thirdPage.setItem(14, panels.get((short) 50));
+		thirdPage.setItem(23, panels.get((short) 51));
+		thirdPage.setItem(32, panels.get((short) 52));
+		thirdPage.setItem(41, panels.get((short) 53));
+		thirdPage.setItem(42, panels.get((short) 54));
+		thirdPage.setItem(43, panels.get((short) 55));
+		thirdPage.setItem(34, panels.get((short) 56));
+		thirdPage.setItem(25, panels.get((short) 57));
+		thirdPage.setItem(16, panels.get((short) 58));
+		thirdPage.setItem(17, panels.get((short) 59));
+		
+		pages.put(2, thirdPage);
+		
+		// Fourth Page
+		Inventory fourthPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 4");
+		
+		fourthPage.setItem(9, getIconAsStack());
+		fourthPage.setItem(4, headInfo);
+		fourthPage.setItem(50, arrowForward);
+		fourthPage.setItem(48, arrowBack);
+		
+		fourthPage.setItem(10, panels.get((short) 60));
+		fourthPage.setItem(19, panels.get((short) 61));
+		fourthPage.setItem(28, panels.get((short) 62));
+		fourthPage.setItem(37, panels.get((short) 63));
+		fourthPage.setItem(38, panels.get((short) 64));
+		fourthPage.setItem(39, panels.get((short) 65));
+		fourthPage.setItem(30, panels.get((short) 66));
+		fourthPage.setItem(21, panels.get((short) 67));
+		fourthPage.setItem(12, panels.get((short) 68));
+		fourthPage.setItem(13, panels.get((short) 69));
+		fourthPage.setItem(14, panels.get((short) 70));
+		fourthPage.setItem(23, panels.get((short) 71));
+		fourthPage.setItem(32, panels.get((short) 72));
+		fourthPage.setItem(41, panels.get((short) 73));
+		fourthPage.setItem(42, panels.get((short) 74));
+		fourthPage.setItem(43, panels.get((short) 75));
+		fourthPage.setItem(34, panels.get((short) 76));
+		fourthPage.setItem(25, panels.get((short) 77));
+		fourthPage.setItem(16, panels.get((short) 78));
+		fourthPage.setItem(17, panels.get((short) 79));
+		
+		pages.put(3, fourthPage);
+		// Fifth Page
+		Inventory fifthPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 5");
+		
+		fifthPage.setItem(9, getIconAsStack());
+		fifthPage.setItem(4, headInfo);
+		fifthPage.setItem(48, arrowBack);
+		
+		fifthPage.setItem(10, panels.get((short) 80));
+		fifthPage.setItem(19, panels.get((short) 81));
+		fifthPage.setItem(28, panels.get((short) 82));
+		fifthPage.setItem(37, panels.get((short) 83));
+		fifthPage.setItem(38, panels.get((short) 84));
+		fifthPage.setItem(39, panels.get((short) 85));
+		fifthPage.setItem(30, panels.get((short) 86));
+		fifthPage.setItem(21, panels.get((short) 87));
+		fifthPage.setItem(12, panels.get((short) 88));
+		fifthPage.setItem(13, panels.get((short) 89));
+		fifthPage.setItem(14, panels.get((short) 90));
+		fifthPage.setItem(23, panels.get((short) 91));
+		fifthPage.setItem(32, panels.get((short) 92));
+		fifthPage.setItem(41, panels.get((short) 93));
+		fifthPage.setItem(42, panels.get((short) 94));
+		fifthPage.setItem(43, panels.get((short) 95));
+		fifthPage.setItem(34, panels.get((short) 96));
+		fifthPage.setItem(25, panels.get((short) 97));
+		fifthPage.setItem(16, panels.get((short) 98));
+		fifthPage.setItem(17, panels.get((short) 99));
+		
+		pages.put(4, fifthPage);
+
+		return pages;
+	}
+	
+	static DecimalFormat df = new DecimalFormat("###.#");
+	
+	
+	public final boolean isBasic() {
+		switch (this) {
+		case COMBAT:
+		case SOCIAL:
+		case AQUATICS:
+		case TRAVELER:
+		case MINING:
+		case HUSBANDRY:
+		case CLEANER:
+		case ENCHANTER:
+		case COLLECTOR:
+		case ARCHERY:
+		case BUILDER:
+		case FARMING:
+		case BREWER:
+		case SMITHING:
+			return false;
+		case ADVANCER:
+			return true;
+		default:
+				return false;
+		}
+	}
+	
+	protected static final Map<Short, ItemStack> getInventoryIcons(Skill s, SilverPlayer p) {
+		df.setRoundingMode(RoundingMode.FLOOR);
+		Map<Short, ItemStack> icons = new HashMap<>();
+		
+		for (short i = 1; i <= 100; i++) {
+			short nextLevel = (short) (i + 1);
+			Material m = (p.getSkill(s).getProgress() >= Skill.toMinimumProgress(s.isBasic(), i) ? Material.LIME_STAINED_GLASS_PANE : Material.YELLOW_STAINED_GLASS_PANE);
+			String name = (p.getSkill(s).getProgress() >= Skill.toMinimumProgress(s.isBasic(), i) ? ChatColor.GREEN : ChatColor.YELLOW) + "Level " + Short.toString(i) + " | " + (p.getSkill(s).getProgress() >= toMinimumProgress(s.isBasic(), i) ? "Complete" : "Incomplete");
+			
+			List<String> completedLore = new ArrayList<>();
+			
+			List<String> incompleteLore = new ArrayList<>();
+			
+			if (i != 100) {
+				incompleteLore.add(ChatColor.YELLOW + SkillUtils.withSuffix(Double.parseDouble(df.format(p.getSkill(s).getProgress()))) + " / " + SkillUtils.withSuffix(Double.parseDouble(df.format(toMinimumProgress(s.isBasic(), nextLevel)))));
+			} else {
+				incompleteLore.add(ChatColor.YELLOW + SkillUtils.withSuffix(Double.parseDouble(df.format(p.getSkill(s).getProgress()))) + " / " + SkillUtils.withSuffix(Double.parseDouble(df.format(toMinimumProgress(s.isBasic(), (short)100)))));
+			}
+			if (s == COMBAT) {
+				completedLore.add(ChatColor.BLUE + "Level " + Short.toString(i) + " Total Damage Buff: " + ChatColor.GOLD + df.format((Math.pow(i, 1.9)) + i * 3.7));
+				incompleteLore.add(" ");
+				incompleteLore.add(ChatColor.AQUA + "Level " + Short.toString(i) + " Total Damage Buff: " + ChatColor.GOLD + df.format((Math.pow(i, 1.9)) + i * 3.7));
+			} else if (s == FARMING) {
+				if (i % 20 == 0) {
+					completedLore.add(ChatColor.GOLD + "+1 Farming Drops");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.YELLOW + "+1 Farming Drops");
+				}
+			} else if (s == MINING) {
+				if (i % 5 == 0) {
+					completedLore.add(ChatColor.AQUA + "+10% Ore Fortune");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_AQUA + "+10% Ore Fortune");
+				}
+			} else if (s == BREWER) {
+				completedLore.add(ChatColor.LIGHT_PURPLE + "+5s Potion Time");
+				incompleteLore.add(" ");
+				incompleteLore.add(ChatColor.DARK_PURPLE + "+5s Potion Time");
+			} else if (s == HUSBANDRY) {
+				if (i == 25) {
+					completedLore.add(ChatColor.GREEN + "Hero of the Village I");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_GREEN + "Hero of the Village I");
+				} else if (i == 50) {
+					completedLore.add(ChatColor.GREEN + "Hero of the Village II");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_GREEN + "Hero of the Village II");
+				} else if (i == 75) {
+					completedLore.add(ChatColor.GREEN + "Hero of the Village III");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_GREEN + "Hero of the Village III");
+				} else if (i == 100) {
+					completedLore.add(ChatColor.GREEN + "Hero of the Village IV");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_GREEN + "Hero of the Village IV");
+				}
+			}
+			ItemStack stack = new ItemStack(m);
+			ItemMeta stackMeta = stack.getItemMeta();
+			
+			stackMeta.setDisplayName(name);
+			stackMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+			
+			if (p.getSkill(s).getProgress() >= Skill.toMinimumProgress(s.isBasic(), i)) stackMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
+			
+			
+			stackMeta.setLore((p.getSkill(s).getProgress() >= Skill.toMinimumProgress(s.isBasic(), i) ? completedLore : incompleteLore));
+			
+			stack.setItemMeta(stackMeta);
+			
+			icons.put((short) (i - 1), stack);
+		}
+		
+		return icons;
 	}
 	
 	protected static final Map<Attribute, Double> getModifier(String name) {
 		Map<Attribute, Double> modifiers = new HashMap<>();
+		modifiers.put(Attribute.GENERIC_LUCK, 1.25);
 		
 		for (Attribute s : Attribute.values()) {
 			modifiers.put(s, 1d);
@@ -122,20 +509,24 @@ public enum Skill {
 			modifiers.put(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 1.1);
 			
 			return modifiers;
-		} else if (name.equalsIgnoreCase("")) {
+		} else if (name.equalsIgnoreCase("farming") || name.equalsIgnoreCase("mining")) {
+			modifiers.put(Attribute.GENERIC_ATTACK_SPEED, 1.2);
 			return modifiers;
 		} else return modifiers;
 	}
-
 	
-	public final Inventory getSkillInventory() {
-		return this.inv;
-	}
-	
+	/**
+	 * Returns icon as material
+	 * @return Icon as Material
+	 */
 	public final Material getIcon() {
 		return this.icon;
 	}
-
+	
+	/**
+	 * Statistics that will increase the progress of this skill
+	 * @return Supported Statistics of skill
+	 */
 	public final Statistic[] getSupportedStatistics() {
 		return this.increases;
 	}
@@ -143,32 +534,52 @@ public enum Skill {
 	public final Map<Attribute, Double> getModifiers() {
 		return this.modifiers;
 	}
-
+	
+	/**
+	 * Get skill icon used in its inventory as an ItemStack
+	 * @return ItemStack of icon
+	 */
 	public ItemStack getIconAsStack() {
 		ItemStack icon = new ItemStack(this.icon);
 		ItemMeta iMeta = icon.getItemMeta();
+		iMeta.setDisplayName(ChatColor.AQUA + this.getCapitalizedName());
 		iMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DYE);
 		iMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
 		icon.setItemMeta(iMeta);
 
 		return icon;
 	}
-
+	
+	/**
+	 * Gets the readable name of this skill
+	 * @return Skill name
+	 */
 	public final String getName() {
 		return this.name;
 	}
 	
+	/**
+	 * Duplicate of getName()
+	 */
 	public String toString() {
 		return this.name;
 	}
 	
+	/**
+	 * Capitalize
+	 * @return String containing capitalized name
+	 */
 	public final String getCapitalizedName() {
 		return (getName().substring(0, 1).toUpperCase() + getName().substring(1));
 	}
 	
 	// Public Static Methods
 	
-	
+	/**
+	 * 
+	 * @param t Entity Type to use
+	 * @return A double containing the minimum amount of combat experience a player will receive when killed
+	 */
 	public static final double matchMinCombatExperience(EntityType t) {
 		LivingEntity entity = (LivingEntity) Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), t);
 		double defaultHP = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
@@ -177,12 +588,22 @@ public enum Skill {
 		return (defaultHP / 5);
 	}
 	
+	/**
+	 * 
+	 * @param e Entity to match off of
+	 * @return A double containing the minimum amount of combat experience a player will receive when killed
+	 */
 	public static final double matchMinCombatExperience(LivingEntity e) {
 		double hp = e.getHealth();
 		
 		return (hp / 5);
 	}
 	
+	/**
+	 * A static method to convert names from getName() to skill
+	 * @param name Skill name
+	 * @return Skill enum from name
+	 */
 	@Nullable
 	public static Skill matchSkill(String name) {
 		for (Skill s : Skill.values()) {
@@ -194,40 +615,34 @@ public enum Skill {
 		return null;
 	}
 	
-	public static final double toMinimumProgress(byte level) {
+	/**
+	 * A static method to convert levels to its minimum required progress
+	 * @param level The level to convert
+	 * @return double containing progress
+	 */
+	public static final double toMinimumProgress(boolean basic, short level) {
 		if (level < 0 || level > 100) {
 			throw new IllegalArgumentException("Level cannot be less than 0 or bigger than 100");
 		}
-
-		if (level <= 10) {
-			return (50 + (150 * level));
-		} else if (level > 10 && level <= 25) {
-			return (1000 + (400 * level));
-		} else if (level > 25 && level <= 50) {
-			return (90000 + (1000 * level));
-		} else if (level > 50 && level <= 80) {
-			return (650000 + (5000 * level));
+		
+		if (!(basic)) {
+			return (150 * (Math.pow(level, 2.4)));
 		} else {
-			return (3000000 + (20000 * level));
+			return (level * 2);
 		}
 	}
-
-	public static final byte toLevel(double progress) {
-		if (progress < 200) return 0;
-		else if (progress <= 1550) {
-			return ((byte) Math.floor((progress - 50) / 150));
-		}
-		else if (progress <= 11000) {
-			return ((byte) Math.floor((progress - 1000) / 400));
-		}
-		else if (progress <= 140000) {
-			return ((byte) Math.floor((progress - 90000) / 1000));
-		}
-		else if (progress <= 1050000) {
-			return ((byte) Math.floor((progress - 650000) / 5000));
-		}
-		else {
-			return ((byte) Math.floor((progress - 3000000) / 20000));
+	
+	/**
+	 * A static method to convert progress to its level
+	 * @param progress The progress amount a player has
+	 * @return short containing its level
+	 */
+	public static final short toLevel(boolean basic, double progress) {
+		if (!(basic)) {
+			if (progress < 791.7) return 0;
+			return ((short) Math.floor(Math.pow(progress, (1 / 2.4) / 150)));
+		} else {
+			return (short) Math.floor(progress / 2);
 		}
 	}
 
