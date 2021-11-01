@@ -2,7 +2,6 @@ package me.gamercoder215.silverskillz;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -31,7 +30,7 @@ public class SilverPlayer {
 		
 		this.player = p;
 
-		this.directory = new File(plugin.getDataFolder().getPath() + "players");
+		this.directory = new File(plugin.getDataFolder().getPath() + "/players");
 
 		if (!(this.directory.exists())) {
 			this.directory.mkdir();
@@ -49,9 +48,18 @@ public class SilverPlayer {
 		}
 		
 		this.playerConfig = YamlConfiguration.loadConfiguration(this.file);
-
+		
+		reloadValues();
 	}
-
+	
+	public final File getPlayerDirectory() {
+		return this.directory;
+	}
+	
+	public final File getPlayerFile() {
+		return this.file;
+	}
+	
 	public void reloadValues() {
 		OfflinePlayer p = this.player;
 		
@@ -59,7 +67,7 @@ public class SilverPlayer {
 			this.playerConfig.set("uuid", p.getUniqueId().toString());
 		}
 
-		if (!(this.playerConfig.get("uuid") instanceof UUID)) {
+		if (!(this.playerConfig.isString("uuid"))) {
 			this.playerConfig.set("uuid", p.getUniqueId().toString());
 		}
 
@@ -67,7 +75,7 @@ public class SilverPlayer {
 			this.playerConfig.set("operator", p.isOp());
 		}
 
-		if (!(this.playerConfig.get("operator") instanceof Boolean)) {
+		if (!(this.playerConfig.isBoolean("operator"))) {
 			this.playerConfig.set("operator", p.isOp());
 		}
 
@@ -75,7 +83,7 @@ public class SilverPlayer {
 			this.playerConfig.set("name", p.getName());
 		}
 
-		if (!(this.playerConfig.get("name") instanceof String)) {
+		if (!(this.playerConfig.isString("name"))) {
 			this.playerConfig.set("name", p.getName());
 		}
 
@@ -110,7 +118,7 @@ public class SilverPlayer {
 				skill.set("name", s.getName());
 			}
 
-			if (!(skill.get("name") instanceof String)) {
+			if (!(skill.isString("name"))) {
 				skill.set("name", s.getName());
 			}
 
@@ -118,7 +126,7 @@ public class SilverPlayer {
 				skill.set("progress", 0);
 			}
 
-			if (!(skill.get("progress") instanceof Integer)) {
+			if (!(skill.isDouble("progress"))) {
 				skill.set("progress", 0);
 			}
 
@@ -126,16 +134,9 @@ public class SilverPlayer {
 				skill.set("level", 0);
 			}
 
-			if (!(skill.get("level") instanceof Integer)) {
+			if (!(skill.isInt("level"))) {
 				skill.set("level", 0);
 			}
-		}
-
-		try {
-			this.playerConfig.save(this.file);
-		} catch (IOException e) {
-			plugin.getLogger().info("Error reloading config");
-			e.printStackTrace();
 		}
 	}
 	
