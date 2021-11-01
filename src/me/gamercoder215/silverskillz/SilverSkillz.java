@@ -1,18 +1,68 @@
 package me.gamercoder215.silverskillz;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import me.gamercoder215.silverskillz.commands.AddProgressCommand;
+import me.gamercoder215.silverskillz.commands.ResetProgressCommand;
+import me.gamercoder215.silverskillz.commands.SkillsCommand;
+import me.gamercoder215.silverskillz.skills.Skill;
 import me.gamercoder215.silverskillz.skills.SkillAdvancer;
 import me.gamercoder215.silverskillz.skills.SkillUtils;
 
 public class SilverSkillz extends JavaPlugin {
-
+	
+	public static void sendPluginMessage(CommandSender sender, String msg) {
+		sender.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GRAY + "SilverSkillz" + ChatColor.DARK_GREEN + "] " + ChatColor.RED + msg);
+	}
+	
 	public void onEnable() {
+		
 		this.saveDefaultConfig();
 		this.saveConfig();
 		
 		new SkillAdvancer(this);
 		new SkillUtils(this);
+		
+		new SkillsCommand(this);
+		new AddProgressCommand(this);
+		new ResetProgressCommand(this);
+		
+		// Config Checks
+		if (this.getConfig().get("DisplayMessages") == null) {
+			this.getConfig().set("DisplayMessages", true);
+		}
+		
+		if (!(this.getConfig().isBoolean("DisplayMessages"))) {
+			this.getConfig().set("DisplayMessages", true);
+		}
+		
+		// Global Effects
+		new BukkitRunnable() {
+			public void run() {
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					SilverPlayer sp = SilverPlayer.fromPlayer(p);
+					
+					int hLevel = sp.getSkill(Skill.HUSBANDRY).getLevel();
+					
+					if (hLevel >= 25 && hLevel < 50) {
+						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 0, true, false, false));
+					} else if (hLevel >= 50 && hLevel < 75) {
+						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 1, true, false, false));
+					} else if (hLevel >= 75 && hLevel < 100) {
+						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 2, true, false, false));
+					} else if (hLevel == 100) {
+						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 3, true, false, false));
+					}
+				}
+			}
+		}.runTaskTimer(this, 0, 100);
 		
 		this.saveConfig();
 	}
