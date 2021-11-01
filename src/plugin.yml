@@ -1,4 +1,47 @@
 name: SilverSkillz
+main: me.gamercoder215.silverskillz.SilverSkillz
 version: 1.0.0
 api-version: 1.17
 description: Edit your minecraft experience in new and exciting ways with over 15 skills!
+commands:
+  skills:
+    usage: /skills
+    description: Opens a GUI with skills
+    permission: silverskillz.command.skill
+    aliases: [skill, sks, sk, skll, sklls]
+  addprogress:
+    usage: /addprogress <player> <amount> [skill]
+    description: Add progress for each skill or one skill
+    permission: silverskillz.command.addprogress
+    aliases: [addp, aprogress, addprog]
+  resetprogress:
+    usage: /resetprogress <player> [skill]
+    description: Reset progress for a skill
+    permission: silverskillz.command.resetprogress
+    aliases: [resetp, rprogress, resetprog, rstprogress]
+  
+permissions:
+  silverskillz.*:
+    default: op
+    description: Access to all SilverSkillz Permissions
+    children:
+      silverskillz.command: true
+  # Commands
+  silverskillz.command:
+    default: op
+    description: Access to all SilverSkillz commands
+    children:
+      silverskillz.command.skill: true
+      silverskillz.command.addprogress: true
+      silverskillz.command.resetprogress: true
+  silverskillz.command.skill:
+    default: op
+    description: Access to /skill command
+  silverskillz.command.addprogress:
+    default: op
+    description: Access to /addprogress
+  silverskillz.command.resetprogress:
+    default: op
+    description: Access to /resetprogress
+    
+    
