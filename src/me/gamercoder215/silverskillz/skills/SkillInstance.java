@@ -9,6 +9,7 @@ import me.gamercoder215.silverskillz.SilverSkillz;
 
 public class SkillInstance {
 
+	private static final Plugin plugin = JavaPlugin.getPlugin(SilverSkillz.class);
 	private final Skill skill;
 	private final SilverPlayer player;
 
@@ -34,17 +35,20 @@ public class SkillInstance {
 	}
 
 	private void reload() {
-		player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).set("progress", this.progress);
-		player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).set("level", this.level);
-		player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).set("name", skill.getName());
-		
-		try {
-			player.getPlayerConfig().save(player.getPlayerFile());
-		} catch (IOException e) {
-			JavaPlugin.getPlugin(SilverSkillz.class).getLogger().info("Error saving player config");
-			e.printStackTrace();
-		}
-		
+		new BukkitRunnable() {
+			public void run() {
+
+				player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).set("progress", this.progress);
+				player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).set("level", this.level);
+				player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).set("name", skill.getName());
+				
+				try {
+					player.getPlayerConfig().save(player.getPlayerFile());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}.runTaskAsynchronously(plugin);
 		this.progress = player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).getDouble("progress");
 		this.level = (short) player.getPlayerConfig().getConfigurationSection("skills").getConfigurationSection(skill.getName()).getInt("level");
 	}

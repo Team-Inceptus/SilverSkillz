@@ -45,7 +45,9 @@ public final class SkillAdvancer implements Listener {
 	public void incrementSkill(PlayerAdvancementDoneEvent e) {
 		SilverPlayer p = SilverPlayer.fromPlayer(e.getPlayer());
 		
-		Skill.awardLevelUp(p, Skill.ADVANCER, p.getSkill(Skill.ADVANCER).addProgress(), 1);
+		int amount = r.nextInt(1) + 1;
+
+		Skill.awardLevelUp(p, Skill.ADVANCER, p.getSkill(Skill.ADVANCER).addProgress(amount), amount);
 	}
 	
 	@EventHandler
@@ -68,6 +70,146 @@ public final class SkillAdvancer implements Listener {
 				e.getPlayer().addPotionEffect(newEffect);
 			}
 		}.runTask(plugin);
+	}
+
+	@EventHandler
+	public void skillEffect(PlayerItemDamageEvent e) {
+		Player p = e.getPlayer();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		int cleanerPercentage = (int) Math.floor(sp.getSkill(Skill.CLEANER).getLevel() / 10);	
+
+		if (r.nextInt(100) < cleanerPercentage) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void skillEffect(PrepareItemEnchantEvent e) {
+		Player p = e.getEnchanter();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+		if (e.getOffers().length == 0) return;
+
+		int plusLevel = (int) Math.floor(sp.getSkill(Skill.ENCHANTER) / 20);
+		double costRemove = Math.floor(sp.getSkill(Skill.ENCHANTER) / 5) * 0.05;
+
+		for (EnchantmentOffer offer : e.getOffers()) {
+			int newCost = (int) Math.floor(offer.getCost() * (1 - costRemove));
+			offer.setCost(newCost);
+
+			offer.setEnchantmentLevel(offer.getEnchantmentLevel() + plusLevel);
+		}
+
+		return;
+	}
+
+	private List<ItemStack> generateItems(double luck) {
+		List<ItemStack> items = new ArrayList<>();
+
+		double newLuck = luck < 0 ? Math.abs(luck) / 100 : luck;
+
+		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.DIAMOND, r.nextInt((int)(Math.floor(newLuck) + 1))));
+		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.NETHERITE_SCRAP, r.nextInt((int)(Math.floor(newLuck / 1.5) + 1)));
+		if (r.nextInt(100) < 5 * newLuck) items.add(new ItemStack(Material.NETHERITE_INGOT, r.nextInt((int)(Math.floor(newLuck / 2) + 1))));
+		if (r.nextInt(100) < 20 * newLuck) items.add(new ItemStack(Material.EMERALD, r.nextInt((int)(Math.floor(newLuck * 3) + 1))));
+		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.IRON_INGOT, r.nextInt((int)(Math.floor(newLuck * 4.5) + 2))));
+		if (r.nextInt(100) < 15 * newLuck) items.add(new ItemStack(Material.GOLDEN_APPLE, r.nextInt((int)(Math.floor(newLuck * 1.5) + 1))));
+		if (r.nextInt(1000) < 5 * newLuck) items.add(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, r.nextInt((int)(Math.floor(newLuck / 10) + 1))));
+		if (r.nextInt(100) < 1 * newLuck) items.add(new ItemStack(Material.TOTEM_OF_UNDYING)));
+		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.DIAMOND, r.nextInt((int)(Math.floor(newLuck) + 1))));
+		if (r.nextInt(1000) < 1 * newLuck) items.add(new ItemStack(Material.NETHER_STAR, r.nextInt((int)(Math.floor(newLuck / 2.5) + 1))));
+		if (r.nextInt(100) < 50 * newLuck) items.add(new ItemStack(Material.COAL, r.nextInt((int)(Math.floor(newLuck * 3) + 3))));
+		if (r.nextInt(100) < 15 * newLuck) items.add(new ItemStack(Material.GOLD_INGOT, r.nextInt((int)(Math.floor(newLuck * 1.25) + 1))));
+
+		return items;
+	}
+	
+	@EventHandler
+	public void skillEffect(LootGenerateEvent e) {
+		if (!(e.getEntity() instanceof Player)) return;
+		if (e.isPlugin()) return;
+		Player p = (Player) e.getEntity();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		double luck = (1 + (Math.floor(sp.getSkill(Skill.ADVANCER).getLevel() / 5) * 0.05)) * sp.getOnlinePlayer().getAttribute(Attribute.GENERIC_LUCK).getValue();
+
+		List<ItemStack> loot = new ArrayList<>();
+		loot.addAll(e.getLoot());
+
+		for (ItemStack i : generateItems(luck)) {
+			if (loot.length() > e.getInventoryHolder().getInventory().getSize()) break;
+			loot.add(i);
+		}
+
+		e.setLoot(loot);
+		return;
+	}
+
+	@EventHandler
+	public void incrementSkill(ProjectileHitEvent e) {
+		if (!(e.getEntity().getShooter() instanceof Player)) return;
+		if (e.getHitEntity() == null) return;
+
+		Player p = (Player) e.getEntity().getShooter();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+		
+		try {
+			int experience = (p.getLocation().distance(e.getHitEntity().getLocation())) + (Math.floor(Skill.matchMinCombatExperience((e.getHitEntity() instanceof LivingEntity ? (LivingEntity) e.getHitEntity() : e.getHitEntity().getType()))));
+
+			if (r.nextInt(100) < (25 * sp.getSkill(Skill.ARCHERY).getLevel())) {
+				sp.getSkill(Skill.ARCHERY).addProgress(experience);
+			}
+			return;
+		} catch (IllegalArgumentException e) {
+			return;
+		}
+	}
+
+	@EventHandler
+	public void skillEffect(FoodLevelChangeEvent e) {
+		
+	}
+
+	@EventHandler
+	public void skillEffect(ProjectileLaunchEvent e) {
+		if (e.getEntity().getShooter() == null) return;
+		if (!(e.getEntity().getShooter() instanceof Player)) return;
+
+		Player p = (Player) e.getEntity().getShooter();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		double increase = 1 + (Math.floor(sp.getSkill(Skill.ARCHERY).getLevel() / 5) * 0.05);
+		Vector newVelocity = e.getEntity().getVelocity().multiply(increase);
+
+		e.getEntity().setVelocity(newVelocity);
+		return;		
+ 	}
+
+	@EventHandler
+	public void incrementSkill(FurnaceExtractEvent e) {
+		if (e.getPlayer() == null) return;
+		if (e.getItemType() == null) return;
+
+		Player p = e.getPlayer();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		double xp = e.getExpToDrop() + (r.nextInt(4) * 1.2);
+
+		sp.getSkill(Skill.SMITHING).addProgress(xp);
+	}
+
+	@EventHandler
+	public void skillEffect(BlockDamageEvent e) {
+		Player p = e.getPlayer();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		Material m = e.getBlock().getType();
+
+		if (sp.getSkill(Skill.SMITHING).getLevel() >= 30) {
+			if (Tag.LOGS.isTagged(m) || Tag.PLANKS.isTagged(m)) {
+				e.setInstaBreak(true);
+			}
+		}
 	}
 	
 	@EventHandler 

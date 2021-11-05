@@ -50,19 +50,24 @@ public class SilverSkillz extends JavaPlugin {
 					SilverPlayer sp = SilverPlayer.fromPlayer(p);
 					
 					int hLevel = sp.getSkill(Skill.HUSBANDRY).getLevel();
+					int aLevel = sp.getSkill(Skill.AQUATICS).getLevel();
 					
 					if (hLevel >= 25 && hLevel < 50) {
-						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 0, true, false, false));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 0, true, false, false));
 					} else if (hLevel >= 50 && hLevel < 75) {
-						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 1, true, false, false));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 1, true, false, false));
 					} else if (hLevel >= 75 && hLevel < 100) {
-						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 2, true, false, false));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 2, true, false, false));
 					} else if (hLevel == 100) {
-						sp.getOnlinePlayer().addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 200, 3, true, false, false));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 3, true, false, false));
+					}
+
+					if (aLevel > 50) {
+						p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 200000, 1, true, false, false));
 					}
 				}
 			}
-		}.runTaskTimer(this, 0, 100);
+		}.runTaskTimer(this, 0, 4;
 		
 		this.saveConfig();
 	}

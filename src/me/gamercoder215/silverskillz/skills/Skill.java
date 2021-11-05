@@ -118,9 +118,7 @@ public enum Skill {
 	 * Skill related to picking up and collecting various items
 	 */
 	COLLECTOR("collector", new Statistic[] {
-		Statistic.PICKUP,
-		Statistic.DROP,
-		Statistic.DROP_COUNT
+		Statistic.PICKUP
 	}, getModifier("collector"), Material.BUNDLE),
 	/**
 	 * Skill related to ranged attacks
@@ -169,8 +167,8 @@ public enum Skill {
 	
 	protected static void awardLevelUp(SilverPlayer p, Skill s, boolean hasLeveled, double increaseBy) {
 		if (p.getOnlinePlayer() == null) return;
-		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;
-		
+
+		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;if (!(p.canSeeSkillMessages()) return;
 		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + "+" + df.format(increaseBy) + " " + s.getCapitalizedName() + " Experience");
 		
 		if (hasLeveled) {
@@ -398,24 +396,9 @@ public enum Skill {
 	
 	public final boolean isBasic() {
 		switch (this) {
-		case COMBAT:
-		case SOCIAL:
-		case AQUATICS:
-		case TRAVELER:
-		case MINING:
-		case HUSBANDRY:
-		case CLEANER:
-		case ENCHANTER:
-		case COLLECTOR:
-		case ARCHERY:
-		case BUILDER:
-		case FARMING:
-		case BREWER:
-		case SMITHING:
-			return false;
-		case ADVANCER:
-			return true;
-		default:
+			case ADVANCER:
+				return true;
+			default:
 				return false;
 		}
 	}
@@ -475,6 +458,59 @@ public enum Skill {
 					completedLore.add(ChatColor.GREEN + "Hero of the Village IV");
 					incompleteLore.add(" ");
 					incompleteLore.add(ChatColor.DARK_GREEN + "Hero of the Village IV");
+				}
+			} else if (s == AQUATICS) {
+				if (i == 50) {
+					completedLore.add(ChatColor.AQUA + "Water Breathing");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_AQUA + "Water Breathing");
+				}
+			} else if (s == CLEANER) {
+				if (i % 10 == 0) {
+					completedLore.add(ChatColor.BLUE + "+10% True Unbreaking");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_AQUA + "+10% True Unbreaking");
+				}
+			} else if (s == ENCHANTER) {
+				if (i % 20 == 0) {
+					completedLore.add(ChatColor.LIGHT_PURPLE + "+1 Enchant Offer Level");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_PURPLE + "+1 Enchant Offer Level");
+				}
+
+				if (i % 5 == 0) {
+					completedLore.add(ChatColor.AQUA + "-5% Enchant Offer Cost");
+					if (!(incompleteLore.contains(" "))) incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.BLUE + "-5% Enchant Offer Cost");
+				}
+			} else if (s == ADVANCER) {
+				if (i % 5 == 0) {
+					completedLore.add(ChatColor.YELLOW + "+10% Loot Luck");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.GOLD + "+10% Loot Luck");
+				}
+			} else if (s == SMITHING) {
+				if (i == 30) {
+					completedLore.add(ChatColor.LIGHT_PURPLE + "Insta-Break Wood");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_PURPLE + "Insta-Break Wood");
+				}
+
+				if (i % 4 == 0) {
+					completedLore.add(ChatColor.GREEN + "+5% Super Resistance");
+					if (!(incompleteLore.contains(" "))) incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_GREEN + "+5% Super Resistance")
+				}
+			} else if (s == ARCHERY) {
+				if (i % 5 == 0) {
+					completedLore.add(ChatColor.YELLOW + "+5% Projectile Velocity");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.GOLD + "+5% Projectile Velocity");
+				}
+			} else if (s == TRAVELER) {
+				if (i % 10 == 0) {
+					completedLore.add(ChatColor.WHITE + "+10% Saturation");
+					incompleteLore.add()
 				}
 			}
 			ItemStack stack = new ItemStack(m);
@@ -626,6 +662,7 @@ public enum Skill {
 		}
 		
 		if (!(basic)) {
+			if (level != 100)
 			return (150 * (Math.pow(level, 2.4)));
 		} else {
 			return (level * 2);

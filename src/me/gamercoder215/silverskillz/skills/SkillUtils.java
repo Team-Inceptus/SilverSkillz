@@ -65,8 +65,14 @@ public class SkillUtils implements Listener {
 			}
 		}
 	}
+
+	@EventHandler
+	public void onClick(InventoryMoveItemEvent e) {
+		if (!(view.getTitle().contains("SilverSkillz - "))) return;
+		e.setCancelled(true);
+	}
 	
-	protected static Inventory generateGUI(int size, String label) {
+	public static Inventory generateGUI(int size, String label) {
 	   	Inventory inv = Bukkit.createInventory(null, size, ChatColor.GOLD + "SilverSkillz - " + label);
 		ItemStack guiBG = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
 		ItemMeta guiBGMeta = guiBG.getItemMeta();
@@ -100,7 +106,7 @@ public class SkillUtils implements Listener {
 			inv.setItem(44, guiBG);
 		}
 		return inv;
-	 }
+	}
 	
 	@EventHandler
 	public void damageCalculation(EntityDamageByEntityEvent e) {
@@ -109,8 +115,17 @@ public class SkillUtils implements Listener {
 		Player p = (Player) e.getDamager();
 		
 		short level = SilverPlayer.fromPlayer(p).getSkill(Skill.COMBAT).getLevel();
-		
-		e.setDamage(e.getDamage() + (Math.pow(level, 1.9)) + level * 3.7);
+
+		if (e.getEntity() instanceof Player) {
+			double percentage = Math.floor(SilverPlayer.fromPlayer(p).getSkill(Skill.SMITHING).getLevel() / 4)
+			double defense = Math.pow(percentage, 1.85) + percentage * 7.4;
+
+			e.setDamage(e.getDamage() + (((Math.pow(level, 1.9)) + level * 3.7) - defense));
+			return;
+		} else {
+			e.setDamage(e.getDamage() + (Math.pow(level, 1.9)) + level * 3.7);
+			return;
+		}
 	}
 	
 	public static String withSuffix(double count) {

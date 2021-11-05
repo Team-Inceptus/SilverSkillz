@@ -61,83 +61,109 @@ public class SilverPlayer {
 	}
 	
 	public void reloadValues() {
-		OfflinePlayer p = this.player;
-		
-		if (this.playerConfig.get("uuid") == null) {
-			this.playerConfig.set("uuid", p.getUniqueId().toString());
-		}
+		new BukkitRunnable() {
+			public void run() {
+				OfflinePlayer p = this.player;
+				// Settings
 
-		if (!(this.playerConfig.isString("uuid"))) {
-			this.playerConfig.set("uuid", p.getUniqueId().toString());
-		}
+				if (this.playerConfig.get("settings") == null) {
+					this.playerConfig.createSection("settings");
+				}
 
-		if (this.playerConfig.get("operator") == null) {
-			this.playerConfig.set("operator", p.isOp());
-		}
+				if (!(this.playerConfig.isConfigurationSection("settings"))) {
+					this.playerConfig.set("settings", null);
+					this.playerConfig.createSection("settings");
+				}
 
-		if (!(this.playerConfig.isBoolean("operator"))) {
-			this.playerConfig.set("operator", p.isOp());
-		}
+				ConfigurationSection settings = this.playerConfig.getConfigurationSection("settings");
 
-		if (this.playerConfig.get("name") == null) {
-			this.playerConfig.set("name", p.getName());
-		}
+				if (settings.get("messages") == null) {
+					settings.set("messages", true);
+				}
 
-		if (!(this.playerConfig.isString("name"))) {
-			this.playerConfig.set("name", p.getName());
-		}
+				if (!(settings.isBoolean("messages"))) {
+					settings.set("messages", true);
+				}
 
-		if (this.playerConfig.get("skills") == null) {
-			this.playerConfig.createSection("skills");
-		}
+				// Other
 
-		if (!(this.playerConfig.get("skills") instanceof ConfigurationSection)) {
-			this.playerConfig.set("skills", null);
-			this.playerConfig.createSection("skills");
-		}
+				if (this.playerConfig.get("uuid") == null) {
+					this.playerConfig.set("uuid", p.getUniqueId().toString());
+				}
 
-		ConfigurationSection skills = this.playerConfig.getConfigurationSection("skills");
+				if (!(this.playerConfig.isString("uuid"))) {
+					this.playerConfig.set("uuid", p.getUniqueId().toString());
+				}
 
-		for (Skill s : Skill.values()) {
-			if (skills.get(s.getName()) == null) {
-				skills.createSection(s.getName());
+				if (this.playerConfig.get("operator") == null) {
+					this.playerConfig.set("operator", p.isOp());
+				}
+
+				if (!(this.playerConfig.isBoolean("operator"))) {
+					this.playerConfig.set("operator", p.isOp());
+				}
+
+				if (this.playerConfig.get("name") == null) {
+					this.playerConfig.set("name", p.getName());
+				}
+
+				if (!(this.playerConfig.isString("name"))) {
+					this.playerConfig.set("name", p.getName());
+				}
+
+				if (this.playerConfig.get("skills") == null) {
+					this.playerConfig.createSection("skills");
+				}
+
+				if (!(this.playerConfig.isConfigurationSection("skills"))) {
+					this.playerConfig.set("skills", null);
+					this.playerConfig.createSection("skills");
+				}
+
+				ConfigurationSection skills = this.playerConfig.getConfigurationSection("skills");
+
+				for (Skill s : Skill.values()) {
+					if (skills.get(s.getName()) == null) {
+						skills.createSection(s.getName());
+					}
+				}
+
+				for (Skill s: Skill.values()) {
+					if (!(skills.isSection(s.getName())) {
+						skills.set(s.getName(), null);
+						skills.createSection(s.getName());
+					}
+				}
+
+				for (Skill s : Skill.values()) {
+					ConfigurationSection skill = skills.getConfigurationSection(s.getName());
+
+					if (skill.get("name") == null) {
+						skill.set("name", s.getName());
+					}
+
+					if (!(skill.isString("name"))) {
+						skill.set("name", s.getName());
+					}
+
+					if (skill.get("progress") == null) {
+						skill.set("progress", 0);
+					}
+
+					if (!(skill.isDouble("progress"))) {
+						skill.set("progress", 0);
+					}
+
+					if (skill.get("level") == null) {
+						skill.set("level", 0);
+					}
+
+					if (!(skill.isInt("level"))) {
+						skill.set("level", 0);
+					}
+				}
 			}
-		}
-
-		for (Skill s: Skill.values()) {
-			if (!(skills.get(s.getName()) instanceof ConfigurationSection)) {
-				skills.set(s.getName(), null);
-				skills.createSection(s.getName());
-			}
-		}
-
-		for (Skill s : Skill.values()) {
-			ConfigurationSection skill = skills.getConfigurationSection(s.getName());
-
-			if (skill.get("name") == null) {
-				skill.set("name", s.getName());
-			}
-
-			if (!(skill.isString("name"))) {
-				skill.set("name", s.getName());
-			}
-
-			if (skill.get("progress") == null) {
-				skill.set("progress", 0);
-			}
-
-			if (!(skill.isDouble("progress"))) {
-				skill.set("progress", 0);
-			}
-
-			if (skill.get("level") == null) {
-				skill.set("level", 0);
-			}
-
-			if (!(skill.isInt("level"))) {
-				skill.set("level", 0);
-			}
-		}
+		}.runTaskAsynchronously(plugin);
 	}
 	
 	public OfflinePlayer getPlayer() {
@@ -159,17 +185,20 @@ public class SilverPlayer {
 		} else return null;
 	}
 
-	public FileConfiguration getPlayerConfig() {
+	public final FileConfiguration getPlayerConfig() {
 		return this.playerConfig;
 	}
 
-	public static SilverPlayer fromPlayer(OfflinePlayer p) {
+	public final static SilverPlayer fromPlayer(OfflinePlayer p) {
 		return new SilverPlayer(p);
 	}
 
 	// Actions
+	public final boolean canSeeSkillMessages() {
+		return this.playerConfig.getConfigurationSection("settings").getBoolean("messages");
+	}
 
-	public SkillInstance getSkill(Skill skill) {
+	public final SkillInstance getSkill(Skill skill) {
 		return new SkillInstance(skill, this);
 	}
 

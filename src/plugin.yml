@@ -19,6 +19,16 @@ commands:
     description: Reset progress for a skill
     permission: silverskillz.command.resetprogress
     aliases: [resetp, rprogress, resetprog, rstprogress]
+  settings:
+    usage: /settings
+    permission: silverskillz.command.settings
+    description: Open the settings menu
+    aliases: [stngs, sett, playersettings]
+  removeprogress:
+    usage: /removeprogress <player> <amount> [skill]
+    description: Remove progress for each skill or one skill
+    permission: silverskillz.command.removeprogress
+    aliases: [removep, rprogress, lessprogress, lessprog, removeprog, rprog]
   
 permissions:
   silverskillz.*:
@@ -34,6 +44,8 @@ permissions:
       silverskillz.command.skill: true
       silverskillz.command.addprogress: true
       silverskillz.command.resetprogress: true
+      silverskillz.command.settings: true
+      silverskillz.command.removeprogress: true
   silverskillz.command.skill:
     default: op
     description: Access to /skill command
@@ -43,5 +55,11 @@ permissions:
   silverskillz.command.resetprogress:
     default: op
     description: Access to /resetprogress
+  silverskillz.command.settings:
+    default: true
+    description: Access to player's personal settings (/settings or /playersettings)
+  silverskilz.command.removeprogress:
+    default: op
+    description: Access to /removeprogress or /lessprogress
     
     
