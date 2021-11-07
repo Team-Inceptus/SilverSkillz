@@ -1,17 +1,42 @@
 package me.gamercoder215.silverskillz.commands;
 
+import java.io.IOException;
+
+import javax.annotation.Nullable;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import me.gamercoder215.silverskillz.SilverPlayer;
+import me.gamercoder215.silverskillz.SilverSkillz;
+import me.gamercoder215.silverskillz.skills.SkillUtils;
+
 public class SettingsCommand implements CommandExecutor, Listener {
 
 	protected SilverSkillz plugin;
 
-	public SettingCommand(SilverSkillz plugin) {
+	public SettingsCommand(SilverSkillz plugin) {
 		this.plugin = plugin;
 		plugin.getCommand("settings").setExecutor(this);
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 
 	public final static Inventory settingsInventory(SilverPlayer p) {
-		Inventory inv = SkillUtils.generateGUI(45, "Player Settings");
+		Inventory inv = SkillUtils.generateGUI(45, ChatColor.DARK_AQUA + "Player Settings");
 
 		ItemStack messages = new ItemStack((p.canSeeSkillMessages() ? Material.LIME_CONCRETE : Material.RED_CONCRETE));
 		ItemMeta mMeta = messages.getItemMeta();
@@ -22,34 +47,32 @@ public class SettingsCommand implements CommandExecutor, Listener {
 
 		return inv;
 	}
-
+	
+	@Nullable
 	private static String matchSetting(ItemStack i) {
 		String name = ChatColor.stripColor(i.getItemMeta().getDisplayName()).toLowerCase().replaceAll("on", "").replaceAll("off", "").replaceAll(" ", "").replaceAll(":", "");
 
 		if (name.equalsIgnoreCase("skillmessages")) return "messages";
+		else return null;
 	}
 
 	private final void toggleSetting(SilverPlayer p, Inventory inv, ItemStack item, int slot) {
 		if (!(item.getItemMeta().getDisplayName().contains("On")) && !(item.getItemMeta().getDisplayName().contains("Off"))) return;
 		String setting = matchSetting(item);
 		boolean newValue = !(p.getPlayerConfig().getConfigurationSection("settings").getBoolean(setting));
-		new BukkitRunnable() {
-			public void run() {
-				p.getPlayerConfig().getConfigurationSection("settings").set(setting, newValue);
-				try {
-					p.getPlayerConfig().save(p.getPlayerFile());		
-				} catch (IOException e) {
-					plugin.getLogger().info("Error toggling setting");
-					e.printStackTrace();
-				}
-			}
-		}.runTaskAsynchronously(plugin);
+		p.getPlayerConfig().getConfigurationSection("settings").set(setting, newValue);
+		try {
+			p.getPlayerConfig().save(p.getPlayerFile());		
+		} catch (IOException e) {
+			plugin.getLogger().info("Error toggling setting");
+			e.printStackTrace();
+		}
 
-		String newName = ChatColor.stripColor(i.getItemMeta().getDisplayName()).replaceAll("On", "").replaceAll("Off", "");
+		String newName = ChatColor.stripColor(item.getItemMeta().getDisplayName()).replaceAll("On", "").replaceAll("Off", "");
 		ItemStack newItem = item.clone();
 		newItem.setType(item.getType() == Material.LIME_CONCRETE ? Material.RED_CONCRETE : Material.LIME_CONCRETE);
 		ItemMeta newMeta = newItem.getItemMeta();
-		newMeta.setDisplayName(ChatColor.YELLOW + newName + (item.getType() == Material.LIME_CONCRETE ? Material.RED_CONCRETE : Material.LIME_CONCRETE));
+		newMeta.setDisplayName(ChatColor.YELLOW + newName + (item.getType() == Material.LIME_CONCRETE ? ChatColor.RED + "Off" : ChatColor.GREEN + "On"));
 		newItem.setItemMeta(newMeta);
 
 		inv.setItem(slot, newItem);
@@ -57,11 +80,12 @@ public class SettingsCommand implements CommandExecutor, Listener {
 
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
+		if (!(e.getWhoClicked() instanceof OfflinePlayer p)) return;
 		InventoryView view = e.getView();
-		SilverPlayer sp = SilverPlayer.fromPlayer(e.getPlayer());
-		if (!(view.getTopInventory() == settingsInventory(sp))) return;
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);	
+		if (!(ChatColor.stripColor(view.getTitle()).contains("SilverSkillz - Player Settings"))) return;
 		if (e.getCurrentItem() == null) return;
-		e.setCanceled(true);
+		e.setCancelled(true);
 		Inventory gui = view.getTopInventory();
 
 		toggleSetting(sp, gui, e.getCurrentItem(), e.getSlot());
@@ -74,7 +98,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		Player p = (Player) sender;
 
 		p.playSound(p.getLocation(), Sound.BLOCK_CHEST_OPEN, 3F, 1F);
-		p.openInventory(settingsInventory(SilverPlayer.fromPlayer(sp)));
+		p.openInventory(settingsInventory(SilverPlayer.fromPlayer(p)));
 
 		return true;
 	}
