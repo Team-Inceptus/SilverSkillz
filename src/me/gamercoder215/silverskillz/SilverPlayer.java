@@ -61,109 +61,105 @@ public class SilverPlayer {
 	}
 	
 	public void reloadValues() {
-		new BukkitRunnable() {
-			public void run() {
-				OfflinePlayer p = this.player;
-				// Settings
+		OfflinePlayer p = player;
+		// Settings
 
-				if (this.playerConfig.get("settings") == null) {
-					this.playerConfig.createSection("settings");
-				}
+		if (playerConfig.get("settings") == null) {
+			playerConfig.createSection("settings");
+		}
 
-				if (!(this.playerConfig.isConfigurationSection("settings"))) {
-					this.playerConfig.set("settings", null);
-					this.playerConfig.createSection("settings");
-				}
+		if (!(playerConfig.isConfigurationSection("settings"))) {
+			playerConfig.set("settings", null);
+			playerConfig.createSection("settings");
+		}
 
-				ConfigurationSection settings = this.playerConfig.getConfigurationSection("settings");
+		ConfigurationSection settings = playerConfig.getConfigurationSection("settings");
 
-				if (settings.get("messages") == null) {
-					settings.set("messages", true);
-				}
+		if (settings.get("messages") == null) {
+			settings.set("messages", true);
+		}
 
-				if (!(settings.isBoolean("messages"))) {
-					settings.set("messages", true);
-				}
+		if (!(settings.isBoolean("messages"))) {
+			settings.set("messages", true);
+		}
 
-				// Other
+		// Other
 
-				if (this.playerConfig.get("uuid") == null) {
-					this.playerConfig.set("uuid", p.getUniqueId().toString());
-				}
+		if (playerConfig.get("uuid") == null) {
+			playerConfig.set("uuid", p.getUniqueId().toString());
+		}
 
-				if (!(this.playerConfig.isString("uuid"))) {
-					this.playerConfig.set("uuid", p.getUniqueId().toString());
-				}
+		if (!(playerConfig.isString("uuid"))) {
+			playerConfig.set("uuid", p.getUniqueId().toString());
+		}
 
-				if (this.playerConfig.get("operator") == null) {
-					this.playerConfig.set("operator", p.isOp());
-				}
+		if (playerConfig.get("operator") == null) {
+			playerConfig.set("operator", p.isOp());
+		}
 
-				if (!(this.playerConfig.isBoolean("operator"))) {
-					this.playerConfig.set("operator", p.isOp());
-				}
+		if (!(playerConfig.isBoolean("operator"))) {
+			playerConfig.set("operator", p.isOp());
+		}
 
-				if (this.playerConfig.get("name") == null) {
-					this.playerConfig.set("name", p.getName());
-				}
+		if (playerConfig.get("name") == null) {
+			playerConfig.set("name", p.getName());
+		}
 
-				if (!(this.playerConfig.isString("name"))) {
-					this.playerConfig.set("name", p.getName());
-				}
+		if (!(playerConfig.isString("name"))) {
+			playerConfig.set("name", p.getName());
+		}
 
-				if (this.playerConfig.get("skills") == null) {
-					this.playerConfig.createSection("skills");
-				}
+		if (playerConfig.get("skills") == null) {
+			playerConfig.createSection("skills");
+		}
 
-				if (!(this.playerConfig.isConfigurationSection("skills"))) {
-					this.playerConfig.set("skills", null);
-					this.playerConfig.createSection("skills");
-				}
+		if (!(playerConfig.isConfigurationSection("skills"))) {
+			playerConfig.set("skills", null);
+			playerConfig.createSection("skills");
+		}
 
-				ConfigurationSection skills = this.playerConfig.getConfigurationSection("skills");
+		ConfigurationSection skills = playerConfig.getConfigurationSection("skills");
 
-				for (Skill s : Skill.values()) {
-					if (skills.get(s.getName()) == null) {
-						skills.createSection(s.getName());
-					}
-				}
-
-				for (Skill s: Skill.values()) {
-					if (!(skills.isSection(s.getName())) {
-						skills.set(s.getName(), null);
-						skills.createSection(s.getName());
-					}
-				}
-
-				for (Skill s : Skill.values()) {
-					ConfigurationSection skill = skills.getConfigurationSection(s.getName());
-
-					if (skill.get("name") == null) {
-						skill.set("name", s.getName());
-					}
-
-					if (!(skill.isString("name"))) {
-						skill.set("name", s.getName());
-					}
-
-					if (skill.get("progress") == null) {
-						skill.set("progress", 0);
-					}
-
-					if (!(skill.isDouble("progress"))) {
-						skill.set("progress", 0);
-					}
-
-					if (skill.get("level") == null) {
-						skill.set("level", 0);
-					}
-
-					if (!(skill.isInt("level"))) {
-						skill.set("level", 0);
-					}
-				}
+		for (Skill s : Skill.values()) {
+			if (skills.get(s.getName()) == null) {
+				skills.createSection(s.getName());
 			}
-		}.runTaskAsynchronously(plugin);
+		}
+
+		for (Skill s: Skill.values()) {
+			if (!(skills.isConfigurationSection(s.getName()))) {
+				skills.set(s.getName(), null);
+				skills.createSection(s.getName());
+			}
+		}
+
+		for (Skill s : Skill.values()) {
+			ConfigurationSection skill = skills.getConfigurationSection(s.getName());
+
+			if (skill.get("name") == null) {
+				skill.set("name", s.getName());
+			}
+
+			if (!(skill.isString("name"))) {
+				skill.set("name", s.getName());
+			}
+
+			if (skill.get("progress") == null) {
+				skill.set("progress", 0);
+			}
+
+			if (!(skill.isDouble("progress"))) {
+				skill.set("progress", 0);
+			}
+
+			if (skill.get("level") == null) {
+				skill.set("level", 0);
+			}
+
+			if (!(skill.isInt("level"))) {
+				skill.set("level", 0);
+			}
+		}
 	}
 	
 	public OfflinePlayer getPlayer() {
