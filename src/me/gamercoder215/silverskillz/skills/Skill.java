@@ -154,7 +154,7 @@ public enum Skill {
 	public static final double MAX_PROGRESS_VALUE = 1000000000;
 
 	private final String name;
-	private Statistic[] increases = new Statistic[] {};
+	private final Statistic[] increases;
 	private final Map<Attribute, Double> modifiers;
 	private final Material icon;
 	
@@ -168,7 +168,8 @@ public enum Skill {
 	protected static void awardLevelUp(SilverPlayer p, Skill s, boolean hasLeveled, double increaseBy) {
 		if (p.getOnlinePlayer() == null) return;
 
-		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;if (!(p.canSeeSkillMessages()) return;
+		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;
+		if (!(p.canSeeSkillMessages())) return;
 		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + "+" + df.format(increaseBy) + " " + s.getCapitalizedName() + " Experience");
 		
 		if (hasLeveled) {
@@ -187,6 +188,7 @@ public enum Skill {
 		
 		menu.setItem(19, COMBAT.getIconAsStack());
 		menu.setItem(21, ARCHERY.getIconAsStack());
+		menu.setItem(22, BUILDER.getIconAsStack());
 		menu.setItem(23, BREWER.getIconAsStack());
 		menu.setItem(25, FARMING.getIconAsStack());
 		menu.setItem(31, SOCIAL.getIconAsStack());
@@ -393,7 +395,10 @@ public enum Skill {
 	
 	static DecimalFormat df = new DecimalFormat("###.#");
 	
-	
+	/**
+	 * Whether or not this skill is basic
+	 * @return true if basic, else false
+	 */
 	public final boolean isBasic() {
 		switch (this) {
 			case ADVANCER:
@@ -499,7 +504,7 @@ public enum Skill {
 				if (i % 4 == 0) {
 					completedLore.add(ChatColor.GREEN + "+5% Super Resistance");
 					if (!(incompleteLore.contains(" "))) incompleteLore.add(" ");
-					incompleteLore.add(ChatColor.DARK_GREEN + "+5% Super Resistance")
+					incompleteLore.add(ChatColor.DARK_GREEN + "+5% Super Resistance");
 				}
 			} else if (s == ARCHERY) {
 				if (i % 5 == 0) {
@@ -510,7 +515,14 @@ public enum Skill {
 			} else if (s == TRAVELER) {
 				if (i % 10 == 0) {
 					completedLore.add(ChatColor.WHITE + "+10% Saturation");
-					incompleteLore.add()
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.GRAY + "+10% Saturation");
+				}
+			} else if (s == BUILDER) {
+				if (i % 5 == 0) {
+					completedLore.add(ChatColor.RED + "+10% Attack Knockback");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_RED + "+10% Attack Knockback");
 				}
 			}
 			ItemStack stack = new ItemStack(m);
@@ -566,7 +578,11 @@ public enum Skill {
 	public final Statistic[] getSupportedStatistics() {
 		return this.increases;
 	}
-
+	
+	/**
+	 * Map of modifiers that will increase skill growth
+	 * @return Map of modifiers by Attribute
+	 */
 	public final Map<Attribute, Double> getModifiers() {
 		return this.modifiers;
 	}
@@ -654,6 +670,7 @@ public enum Skill {
 	/**
 	 * A static method to convert levels to its minimum required progress
 	 * @param level The level to convert
+	 * @param basic Whether or not to use basic conversion
 	 * @return double containing progress
 	 */
 	public static final double toMinimumProgress(boolean basic, short level) {
@@ -662,7 +679,6 @@ public enum Skill {
 		}
 		
 		if (!(basic)) {
-			if (level != 100)
 			return (150 * (Math.pow(level, 2.4)));
 		} else {
 			return (level * 2);
@@ -672,12 +688,13 @@ public enum Skill {
 	/**
 	 * A static method to convert progress to its level
 	 * @param progress The progress amount a player has
+	 * @param basic Whether or not to use basic conversion
 	 * @return short containing its level
 	 */
 	public static final short toLevel(boolean basic, double progress) {
 		if (!(basic)) {
 			if (progress < 791.7) return 0;
-			return ((short) Math.floor(Math.pow(progress, (1 / 2.4) / 150)));
+			return ((short) Math.floor(Math.pow((progress / 150), (1 / 2.4))));
 		} else {
 			return (short) Math.floor(progress / 2);
 		}

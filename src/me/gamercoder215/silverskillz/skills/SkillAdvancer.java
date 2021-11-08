@@ -3,28 +3,47 @@ package me.gamercoder215.silverskillz.skills;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.Tag;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.FurnaceExtractEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
+import org.bukkit.event.world.LootGenerateEvent;
+import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import me.gamercoder215.silverskillz.SilverPlayer;
 import me.gamercoder215.silverskillz.SilverSkillz;
@@ -71,7 +90,18 @@ public final class SkillAdvancer implements Listener {
 			}
 		}.runTask(plugin);
 	}
-
+	
+	@EventHandler
+	public void incrementSkill(PlayerMoveEvent e) {
+		Player p = e.getPlayer();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+		
+		if (r.nextInt(100) < 5) {
+			sp.getSkill(Skill.TRAVELER).addProgress(r.nextInt(3) + 1 + r.nextDouble());
+		}
+	}
+	
+	// Cleaner Skill - Unbreaking
 	@EventHandler
 	public void skillEffect(PlayerItemDamageEvent e) {
 		Player p = e.getPlayer();
@@ -83,24 +113,69 @@ public final class SkillAdvancer implements Listener {
 			e.setCancelled(true);
 		}
 	}
-
+	
+	// Map Cache for Enchant Offers
+	Map<UUID, EnchantmentOffer[]> offers = new HashMap<>();
+	
 	@EventHandler
 	public void skillEffect(PrepareItemEnchantEvent e) {
 		Player p = e.getEnchanter();
 		SilverPlayer sp = SilverPlayer.fromPlayer(p);
 		if (e.getOffers().length == 0) return;
-
-		int plusLevel = (int) Math.floor(sp.getSkill(Skill.ENCHANTER) / 20);
-		double costRemove = Math.floor(sp.getSkill(Skill.ENCHANTER) / 5) * 0.05;
-
+		
+		int plusLevel = (int) Math.floor(sp.getSkill(Skill.ENCHANTER).getLevel() / 20);
+		double costRemove = Math.floor(sp.getSkill(Skill.ENCHANTER).getLevel() / 5) * 0.05;
+		
 		for (EnchantmentOffer offer : e.getOffers()) {
+			if (offer == null) continue;
 			int newCost = (int) Math.floor(offer.getCost() * (1 - costRemove));
+			
+			if (newCost < 1) newCost = 1;
 			offer.setCost(newCost);
-
 			offer.setEnchantmentLevel(offer.getEnchantmentLevel() + plusLevel);
+			
+			offers.put(p.getUniqueId(), e.getOffers());
 		}
-
+		
 		return;
+	}
+	
+	// Increment Enchanting Skill & Enchanting Effect
+	@EventHandler
+	public void incrementSkill(EnchantItemEvent e) {
+		Player p = e.getEnchanter();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+		
+		// Increment
+		sp.getSkill(Skill.ENCHANTER).addProgress(r.nextInt(4) + 1);
+		
+		// Managing Offers Cache & Offers
+		if (offers.containsKey(p.getUniqueId())) {
+			EnchantmentOffer offer = offers.get(p.getUniqueId())[e.whichButton()];
+			
+			e.setExpLevelCost(offer.getCost());
+			offers.remove(p.getUniqueId());
+			
+			new BukkitRunnable() {
+				public void run() {
+					ItemMeta newMeta = e.getItem().getItemMeta();
+					e.getEnchantsToAdd().forEach((enchantment, level) -> newMeta.removeEnchant(enchantment));
+					e.getEnchantsToAdd().forEach((enchantment, level) -> newMeta.addEnchant(enchantment, offer.getEnchantmentLevel(), true));
+					e.getItem().setItemMeta(newMeta);
+				}
+			}.runTask(plugin);
+			
+		}
+	}
+	
+	// Utilities for handling cache
+	@EventHandler
+	public void util(InventoryCloseEvent e) {
+		if (!(e.getPlayer() instanceof Player p)) return;
+		
+		if (e.getInventory() instanceof EnchantingInventory) {
+			if (offers.containsKey(p.getUniqueId())) offers.remove(p.getUniqueId());
+		}
 	}
 
 	private List<ItemStack> generateItems(double luck) {
@@ -109,13 +184,13 @@ public final class SkillAdvancer implements Listener {
 		double newLuck = luck < 0 ? Math.abs(luck) / 100 : luck;
 
 		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.DIAMOND, r.nextInt((int)(Math.floor(newLuck) + 1))));
-		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.NETHERITE_SCRAP, r.nextInt((int)(Math.floor(newLuck / 1.5) + 1)));
+		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.NETHERITE_SCRAP, r.nextInt((int)(Math.floor(newLuck / 1.5) + 1))));
 		if (r.nextInt(100) < 5 * newLuck) items.add(new ItemStack(Material.NETHERITE_INGOT, r.nextInt((int)(Math.floor(newLuck / 2) + 1))));
 		if (r.nextInt(100) < 20 * newLuck) items.add(new ItemStack(Material.EMERALD, r.nextInt((int)(Math.floor(newLuck * 3) + 1))));
 		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.IRON_INGOT, r.nextInt((int)(Math.floor(newLuck * 4.5) + 2))));
 		if (r.nextInt(100) < 15 * newLuck) items.add(new ItemStack(Material.GOLDEN_APPLE, r.nextInt((int)(Math.floor(newLuck * 1.5) + 1))));
 		if (r.nextInt(1000) < 5 * newLuck) items.add(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, r.nextInt((int)(Math.floor(newLuck / 10) + 1))));
-		if (r.nextInt(100) < 1 * newLuck) items.add(new ItemStack(Material.TOTEM_OF_UNDYING)));
+		if (r.nextInt(100) < 1 * newLuck) items.add(new ItemStack(Material.TOTEM_OF_UNDYING));
 		if (r.nextInt(100) < 10 * newLuck) items.add(new ItemStack(Material.DIAMOND, r.nextInt((int)(Math.floor(newLuck) + 1))));
 		if (r.nextInt(1000) < 1 * newLuck) items.add(new ItemStack(Material.NETHER_STAR, r.nextInt((int)(Math.floor(newLuck / 2.5) + 1))));
 		if (r.nextInt(100) < 50 * newLuck) items.add(new ItemStack(Material.COAL, r.nextInt((int)(Math.floor(newLuck * 3) + 3))));
@@ -137,7 +212,7 @@ public final class SkillAdvancer implements Listener {
 		loot.addAll(e.getLoot());
 
 		for (ItemStack i : generateItems(luck)) {
-			if (loot.length() > e.getInventoryHolder().getInventory().getSize()) break;
+			if (loot.size() > e.getInventoryHolder().getInventory().getSize()) break;
 			loot.add(i);
 		}
 
@@ -154,20 +229,36 @@ public final class SkillAdvancer implements Listener {
 		SilverPlayer sp = SilverPlayer.fromPlayer(p);
 		
 		try {
-			int experience = (p.getLocation().distance(e.getHitEntity().getLocation())) + (Math.floor(Skill.matchMinCombatExperience((e.getHitEntity() instanceof LivingEntity ? (LivingEntity) e.getHitEntity() : e.getHitEntity().getType()))));
-
-			if (r.nextInt(100) < (25 * sp.getSkill(Skill.ARCHERY).getLevel())) {
-				sp.getSkill(Skill.ARCHERY).addProgress(experience);
+			if (e.getHitEntity() instanceof LivingEntity en) {
+				double experience = (p.getLocation().distance(e.getHitEntity().getLocation())) + (Math.floor(Skill.matchMinCombatExperience(en)));
+	
+				if (r.nextInt(100) < (25 * sp.getSkill(Skill.ARCHERY).getLevel())) {
+					sp.getSkill(Skill.ARCHERY).addProgress(experience);
+				}
+			} else {
+				double experience = (p.getLocation().distance(e.getHitEntity().getLocation())) + (Math.floor(Skill.matchMinCombatExperience(e.getHitEntity().getType())));
+			
+				if (r.nextInt(100) < (25 * sp.getSkill(Skill.ARCHERY).getLevel())) {
+					sp.getSkill(Skill.ARCHERY).addProgress(experience);
+				}
 			}
 			return;
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException err) {
 			return;
 		}
 	}
 
 	@EventHandler
 	public void skillEffect(FoodLevelChangeEvent e) {
+		if (!(e.getEntity() instanceof Player p)) return;
+		if (e.getItem() != null) return;
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
 		
+		double chance = Math.floor(sp.getSkill(Skill.TRAVELER).getLevel() / 10) * 10;
+		
+		if (r.nextInt(100) < chance) {
+			e.setCancelled(true);
+		}
 	}
 
 	@EventHandler
@@ -293,6 +384,7 @@ public final class SkillAdvancer implements Listener {
 		if (r.nextInt(100) > 25) return;
 		
 		for (Skill s : Skill.values()) {
+			if (s.getSupportedStatistics() == null) return;
 			for (Statistic st : s.getSupportedStatistics()) {
 				if (st == e.getStatistic()) {
 					List<Double> modifierList = new ArrayList<>();

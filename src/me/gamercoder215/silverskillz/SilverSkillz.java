@@ -10,7 +10,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.gamercoder215.silverskillz.commands.AddProgressCommand;
+import me.gamercoder215.silverskillz.commands.RemoveProgressCommand;
 import me.gamercoder215.silverskillz.commands.ResetProgressCommand;
+import me.gamercoder215.silverskillz.commands.SettingsCommand;
 import me.gamercoder215.silverskillz.commands.SkillsCommand;
 import me.gamercoder215.silverskillz.skills.Skill;
 import me.gamercoder215.silverskillz.skills.SkillAdvancer;
@@ -33,6 +35,8 @@ public class SilverSkillz extends JavaPlugin {
 		new SkillsCommand(this);
 		new AddProgressCommand(this);
 		new ResetProgressCommand(this);
+		new RemoveProgressCommand(this);
+		new SettingsCommand(this);
 		
 		// Config Checks
 		if (this.getConfig().get("DisplayMessages") == null) {
@@ -67,7 +71,7 @@ public class SilverSkillz extends JavaPlugin {
 					}
 				}
 			}
-		}.runTaskTimer(this, 0, 4;
+		}.runTaskTimer(this, 0, 4);
 		
 		this.saveConfig();
 	}

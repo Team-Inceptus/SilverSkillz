@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -68,16 +69,22 @@ public class SkillUtils implements Listener {
 
 	@EventHandler
 	public void onClick(InventoryMoveItemEvent e) {
-		if (!(view.getTitle().contains("SilverSkillz - "))) return;
+		if (!(e.getSource().contains(getInventoryPlaceholder()))) return;
 		e.setCancelled(true);
 	}
 	
-	public static Inventory generateGUI(int size, String label) {
-	   	Inventory inv = Bukkit.createInventory(null, size, ChatColor.GOLD + "SilverSkillz - " + label);
+	private static ItemStack getInventoryPlaceholder() {
 		ItemStack guiBG = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
 		ItemMeta guiBGMeta = guiBG.getItemMeta();
 		guiBGMeta.setDisplayName(" ");
 		guiBG.setItemMeta(guiBGMeta);
+		
+		return guiBG;
+	}
+	
+	public static Inventory generateGUI(int size, String label) {
+	   	Inventory inv = Bukkit.createInventory(null, size, ChatColor.GOLD + "SilverSkillz - " + label);
+	   	ItemStack guiBG = getInventoryPlaceholder();
 		
 		if (size < 27) return inv;
 		
@@ -110,14 +117,14 @@ public class SkillUtils implements Listener {
 	
 	@EventHandler
 	public void damageCalculation(EntityDamageByEntityEvent e) {
-		if (!(e.getDamager() instanceof Player)) return;
+		if (!(e.getDamager() instanceof Player p)) return;
 		
-		Player p = (Player) e.getDamager();
-		
-		short level = SilverPlayer.fromPlayer(p).getSkill(Skill.COMBAT).getLevel();
-
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+		short level = sp.getSkill(Skill.COMBAT).getLevel();
+		double knockbackMultiply = 1 + (Math.floor(sp.getSkill(Skill.BUILDER).getLevel() / 5) * 0.1);
+		e.getEntity().setVelocity(p.getLocation().getDirection().setY(0).normalize().multiply(knockbackMultiply));
 		if (e.getEntity() instanceof Player) {
-			double percentage = Math.floor(SilverPlayer.fromPlayer(p).getSkill(Skill.SMITHING).getLevel() / 4)
+			double percentage = Math.floor(sp.getSkill(Skill.SMITHING).getLevel() / 4);
 			double defense = Math.pow(percentage, 1.85) + percentage * 7.4;
 
 			e.setDamage(e.getDamage() + (((Math.pow(level, 1.9)) + level * 3.7) - defense));
