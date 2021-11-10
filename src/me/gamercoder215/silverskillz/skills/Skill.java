@@ -512,6 +512,10 @@ public enum Skill {
 					incompleteLore.add(" ");
 					incompleteLore.add(ChatColor.GOLD + "+5% Projectile Velocity");
 				}
+
+				completedLore.add(ChatColor.RED + "+5 Projectile Damage");
+				if (!(incompleteLore.contains(" "))) incompleteLore.add(" ");
+				incompleteLore.add(ChatColor.RED + "+5 Projectile Damage");
 			} else if (s == TRAVELER) {
 				if (i % 10 == 0) {
 					completedLore.add(ChatColor.WHITE + "+10% Saturation");
@@ -523,6 +527,18 @@ public enum Skill {
 					completedLore.add(ChatColor.RED + "+10% Attack Knockback");
 					incompleteLore.add(" ");
 					incompleteLore.add(ChatColor.DARK_RED + "+10% Attack Knockback");
+				}
+			} else if (s == COLLECTOR) {
+				if (i % 2 == 0) {
+					completedLore.add(ChatColor.GREEN + "+10% Statistic Increase");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_GREEN + "10% Statistic Increase");
+				}
+			} else if (s == SOCIAL) {
+				if (i % 6 == 0) {
+					completedLore.add(ChatColor.RED + "+5% Mob Ignore Chance");
+					incompleteLore.add(" ");
+					incompleteLore.add(ChatColor.DARK_RED + "+5% Mob Ignore Chance");
 				}
 			}
 			ItemStack stack = new ItemStack(m);

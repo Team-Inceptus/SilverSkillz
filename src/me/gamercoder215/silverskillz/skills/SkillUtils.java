@@ -123,21 +123,55 @@ public class SkillUtils implements Listener {
 		short level = sp.getSkill(Skill.COMBAT).getLevel();
 		double knockbackMultiply = 1 + (Math.floor(sp.getSkill(Skill.BUILDER).getLevel() / 5) * 0.1);
 		e.getEntity().setVelocity(p.getLocation().getDirection().setY(0).normalize().multiply(knockbackMultiply));
-		if (e.getEntity() instanceof Player) {
+		if (e.getEntity() instanceof Player target) {
+			double points = target.getAttribute(Attribute.GENERIC_ARMOR).getValue() + defense;
+			double toughness = target.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue();
+			PotionEffect effect = target.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
+			int resistance = effect == null ? 0 : effect.getAmplifier();
+			int epf = getEPF(target.getInventory());
 			double percentage = Math.floor(sp.getSkill(Skill.SMITHING).getLevel() / 4);
 			double defense = Math.pow(percentage, 1.85) + percentage * 7.4;
 
-			e.setDamage(e.getDamage() + (((Math.pow(level, 1.9)) + level * 3.7) - defense));
+			e.setDamage(e.getFinalDamage() + calculateDamageApplied(((Math.pow(level, 1.9)) + level * 3.7), points, toughness, resistance, epf));
 			return;
 		} else {
-			e.setDamage(e.getDamage() + (Math.pow(level, 1.9)) + level * 3.7);
+			e.setDamage(e.getFinalDamage() + (Math.pow(level, 1.9)) + level * 3.7);
 			return;
 		}
 	}
 	
-	public static String withSuffix(double count) {
+	protected static String withSuffix(double count) {
 	    if (count < 1000) return "" + count;
 	    int exp = (int) (Math.log(count) / Math.log(1000));
 	    return String.format("%.1f%c", count / Math.pow(1000, exp), "KMBTQISPOND".charAt(exp-1));
+	}
+
+protected static void damagePlayer(Player p, double damage) {
+  double points = p.getAttribute(Attribute.GENERIC_ARMOR).getValue();
+  double toughness = p.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue();
+  PotionEffect effect = p.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
+  int resistance = effect == null ? 0 : effect.getAmplifier();
+  int epf = Util.getEPF(p.getInventory());
+
+  p.damage(calculateDamageApplied(damage, points, toughness, resistance, epf));
+}
+
+protected static double calculateDamageApplied(double damage, double points, double toughness, int resistance, int epf) {
+  double withArmorAndToughness = damage * (1 - Math.min(20, Math.max(points / 5, points - damage / (2 + toughness / 4))) / 25);
+  double withResistance = withArmorAndToughness * (1 - (resistance * 0.2));
+  double withEnchants = withResistance * (1 - (Math.min(20.0, epf) / 25));
+  return withEnchants;
+}
+
+protected static int getEPF(PlayerInventory inv) {
+  ItemStack helm = inv.getHelmet();
+  ItemStack chest = inv.getChestplate();
+  ItemStack legs = inv.getLeggings();
+  ItemStack boot = inv.getBoots();
+
+  return (helm != null ? helm.getEnchantmentLevel(Enchantment.PROTECTION_ENVIRONMENTAL) : 0) +
+     (chest != null ? chest.getEnchantmentLevel(Enchantment.PROTECTION_ENVIRONMENTAL) : 0) +
+     (legs != null ? legs.getEnchantmentLevel(Enchantment.PROTECTION_ENVIRONMENTAL) : 0) +
+     (boot != null ? boot.getEnchantmentLevel(Enchantment.PROTECTION_ENVIRONMENTAL) : 0);
 	}
 }

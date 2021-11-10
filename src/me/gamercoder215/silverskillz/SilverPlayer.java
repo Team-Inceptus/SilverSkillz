@@ -173,7 +173,6 @@ public class SilverPlayer {
 		
 		return (other.getPlayer().getUniqueId().equals(this.getPlayer().getUniqueId()));
 	}
-	
 	@Nullable
 	public Player getOnlinePlayer() {
 		if (getPlayer().isOnline()) {

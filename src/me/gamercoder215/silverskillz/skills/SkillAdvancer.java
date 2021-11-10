@@ -93,11 +93,29 @@ public final class SkillAdvancer implements Listener {
 	
 	@EventHandler
 	public void incrementSkill(PlayerMoveEvent e) {
+		if (e.getFrom().equals(e.getTo())) return;
 		Player p = e.getPlayer();
 		SilverPlayer sp = SilverPlayer.fromPlayer(p);
 		
 		if (r.nextInt(100) < 5) {
 			sp.getSkill(Skill.TRAVELER).addProgress(r.nextInt(3) + 1 + r.nextDouble());
+		}
+	}
+
+	@EventHandler
+	public void incrementSkill(VehicleMoveEvent e) {
+		if (e.getFrom().equals(e.getTo())) return;
+		if (e.getVehicle().getPassengers().size() < 1) return;
+		List<Player> players = new ArrayList<>();
+
+		for (Entity e : e.getVehicle().getPassengers()) if (e instanceof Player p) players.add(p);
+		if (players.size() < 1) return;
+
+		for (Player p : players) {
+			SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+			if (r.nextInt(100) < 5)
+			sp.getSkill(Skill.TRAVELER).addProgress(r.nextInt(4) + 1 + r.nextDouble());
 		}
 	}
 	
@@ -200,6 +218,41 @@ public final class SkillAdvancer implements Listener {
 	}
 	
 	@EventHandler
+	public void skillEffect(EntityTargetEvent e) {
+		if (e.getTarget() == null) return;
+		if (!(e.getEntity() instanceof LivingEntity en)) return;
+		if (!(en instanceof Monster) && en.getType() != EntityType.SLIME && en.getType() != EntityType.MAGMA_CUBE) return;
+		if (!(e.getTarget() instanceof Player p)) return;
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		int chance = (int) (100 * (Math.floor(sp.getSkill(Skill.SOCIAL).getLevel() / 6) * 0.05));
+
+		if (r.nextInt(100) < chance) {
+			e.setTarget(null);
+			return;
+		}
+	}
+
+	@EventHandler
+	public void skillEffect(PlayerStatisticIncrementEvent e) {
+		Player p = e.getplayer();
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		int increase = (int) Math.floor(sp.getSkill(Skill.COLLECTOR).getLevel() / 20);
+		if (increase != 0) { 
+			for (int i = 0; i < increase; i++) {
+				if (e.getMaterial() != null) {
+					p.incrementStatistic(e.getStatistic(), e.getNewValue() - e.getPreviousValue(), e.getMaterial());
+				} else if (e.getEntityType() != null) {
+					p.incrementStatistic(e.getStatistic(), e.getNewValue() - e.getPreviousValue(), e.getMaterial());
+				} else {
+					p.incrementStatistic(e.getStatistic(), e.getNewValue() - e.getPreviousValue(), e.getMaterial());
+				}
+			}
+		}
+	}
+
+	@EventHandler
 	public void skillEffect(LootGenerateEvent e) {
 		if (!(e.getEntity() instanceof Player)) return;
 		if (e.isPlugin()) return;
@@ -218,6 +271,18 @@ public final class SkillAdvancer implements Listener {
 
 		e.setLoot(loot);
 		return;
+	}
+
+	@EventHandler
+	public void skillEffect(EntityDamageByEntityEvent e) {
+		if (e.getEntity() == null) return;
+		if (e.getCause() != DamageCause.PROJECTILE) return;
+		if (!(e.getDamager() instanceof Player p)) return;
+		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+
+		int damageIncrease = (int) (sp.getSkill(Skill.ARCHER).getLevel() * 5);
+
+		e.setDamage(e.getFinalDamage() + damageIncrease)
 	}
 
 	@EventHandler

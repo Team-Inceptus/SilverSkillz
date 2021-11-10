@@ -23,9 +23,8 @@ public class SilverSkillz extends JavaPlugin {
 	public static void sendPluginMessage(CommandSender sender, String msg) {
 		sender.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GRAY + "SilverSkillz" + ChatColor.DARK_GREEN + "] " + ChatColor.RED + msg);
 	}
-	
-	public void onEnable() {
-		
+
+	public void onEnable() {	
 		this.saveDefaultConfig();
 		this.saveConfig();
 		
