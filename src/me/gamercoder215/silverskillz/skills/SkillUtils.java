@@ -5,6 +5,8 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +16,10 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import me.gamercoder215.silverskillz.SilverPlayer;
 import me.gamercoder215.silverskillz.SilverSkillz;
@@ -38,7 +43,7 @@ public class SkillUtils implements Listener {
 	public void onClick(InventoryClickEvent e) {
 		InventoryView view = e.getView();
 		Player p = (Player) e.getWhoClicked();
-		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+		SilverPlayer sp = new SilverPlayer(p);
 		if (e.getCurrentItem() == null) return;
 		if (!(view.getTitle().contains("SilverSkillz - "))) return;
 		e.setCancelled(true);
@@ -119,18 +124,18 @@ public class SkillUtils implements Listener {
 	public void damageCalculation(EntityDamageByEntityEvent e) {
 		if (!(e.getDamager() instanceof Player p)) return;
 		
-		SilverPlayer sp = SilverPlayer.fromPlayer(p);
+		SilverPlayer sp = new SilverPlayer(p);
 		short level = sp.getSkill(Skill.COMBAT).getLevel();
 		double knockbackMultiply = 1 + (Math.floor(sp.getSkill(Skill.BUILDER).getLevel() / 5) * 0.1);
 		e.getEntity().setVelocity(p.getLocation().getDirection().setY(0).normalize().multiply(knockbackMultiply));
 		if (e.getEntity() instanceof Player target) {
+			double percentage = Math.floor(sp.getSkill(Skill.SMITHING).getLevel() / 4);
+			double defense = Math.pow(percentage, 1.85) + percentage * 7.4;
 			double points = target.getAttribute(Attribute.GENERIC_ARMOR).getValue() + defense;
 			double toughness = target.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue();
 			PotionEffect effect = target.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
 			int resistance = effect == null ? 0 : effect.getAmplifier();
 			int epf = getEPF(target.getInventory());
-			double percentage = Math.floor(sp.getSkill(Skill.SMITHING).getLevel() / 4);
-			double defense = Math.pow(percentage, 1.85) + percentage * 7.4;
 
 			e.setDamage(e.getFinalDamage() + calculateDamageApplied(((Math.pow(level, 1.9)) + level * 3.7), points, toughness, resistance, epf));
 			return;
@@ -151,7 +156,7 @@ protected static void damagePlayer(Player p, double damage) {
   double toughness = p.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue();
   PotionEffect effect = p.getPotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
   int resistance = effect == null ? 0 : effect.getAmplifier();
-  int epf = Util.getEPF(p.getInventory());
+  int epf = getEPF(p.getInventory());
 
   p.damage(calculateDamageApplied(damage, points, toughness, resistance, epf));
 }

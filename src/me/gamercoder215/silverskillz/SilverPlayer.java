@@ -10,7 +10,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.gamercoder215.silverskillz.skills.Skill;
@@ -19,24 +18,19 @@ import me.gamercoder215.silverskillz.skills.SkillInstance;
 public class SilverPlayer {
 
 	private final OfflinePlayer player;
-	private final Plugin plugin;
 
 	private final File file;
-	private final File directory;
+	private static final File directory = new File(JavaPlugin.getPlugin(SilverSkillz.class).getDataFolder().getPath() + "/players");;
 	private final FileConfiguration playerConfig;
 
-	private SilverPlayer(OfflinePlayer p) {
-		this.plugin = JavaPlugin.getPlugin(SilverSkillz.class);
-		
+	public SilverPlayer(OfflinePlayer p) {
 		this.player = p;
 
-		this.directory = new File(plugin.getDataFolder().getPath() + "/players");
-
-		if (!(this.directory.exists())) {
-			this.directory.mkdir();
+		if (!(SilverPlayer.directory.exists())) {
+			SilverPlayer.directory.mkdir();
 		}
 
-		this.file = new File(this.directory, p.getUniqueId().toString() + ".yml");
+		this.file = new File(SilverPlayer.directory, p.getUniqueId().toString() + ".yml");
 
 		if (!(this.file.exists())) {
 			try {
@@ -52,8 +46,8 @@ public class SilverPlayer {
 		reloadValues();
 	}
 	
-	public final File getPlayerDirectory() {
-		return this.directory;
+	public static final File getPlayerDirectory() {
+		return SilverPlayer.directory;
 	}
 	
 	public final File getPlayerFile() {
@@ -81,6 +75,14 @@ public class SilverPlayer {
 
 		if (!(settings.isBoolean("messages"))) {
 			settings.set("messages", true);
+		}
+		
+		if (settings.get("potion-effects") == null) {
+			settings.set("potion-effects", true);
+		}
+		
+		if (!(settings.isBoolean("potion-effects"))) {
+			settings.set("potion-effects", true);
 		}
 
 		// Other
@@ -179,20 +181,37 @@ public class SilverPlayer {
 			return ((Player) getPlayer());
 		} else return null;
 	}
-
+	
+	/**
+	 * Get the instance of this player's configuration file
+	 * @return FileConfiguration of this player
+	 */
 	public final FileConfiguration getPlayerConfig() {
 		return this.playerConfig;
 	}
 
-	public final static SilverPlayer fromPlayer(OfflinePlayer p) {
-		return new SilverPlayer(p);
-	}
-
 	// Actions
+	/**
+	 * If player has skill messages on
+	 * @return true if skill messages are on
+	 */
 	public final boolean canSeeSkillMessages() {
 		return this.playerConfig.getConfigurationSection("settings").getBoolean("messages");
 	}
-
+	
+	/**
+	 * If player has potion effects on
+	 * @return true if potion effects are enabled
+	 */
+	public final boolean hasPotionEffects() {
+		return this.playerConfig.getConfigurationSection("settings").getBoolean("potion-effects");
+	}
+	
+	/**
+	 * Get a skill instance for this player
+	 * @param skill Skill to get instance from
+	 * @return SkillInstance for this skill, for this player
+	 */
 	public final SkillInstance getSkill(Skill skill) {
 		return new SkillInstance(skill, this);
 	}

@@ -23,7 +23,7 @@ public class SilverSkillz extends JavaPlugin {
 	public static void sendPluginMessage(CommandSender sender, String msg) {
 		sender.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GRAY + "SilverSkillz" + ChatColor.DARK_GREEN + "] " + ChatColor.RED + msg);
 	}
-
+	
 	public void onEnable() {	
 		this.saveDefaultConfig();
 		this.saveConfig();
@@ -50,7 +50,8 @@ public class SilverSkillz extends JavaPlugin {
 		new BukkitRunnable() {
 			public void run() {
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					SilverPlayer sp = SilverPlayer.fromPlayer(p);
+					SilverPlayer sp = new SilverPlayer(p);
+					if (!(sp.hasPotionEffects())) return;
 					
 					int hLevel = sp.getSkill(Skill.HUSBANDRY).getLevel();
 					int aLevel = sp.getSkill(Skill.AQUATICS).getLevel();

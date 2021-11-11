@@ -82,7 +82,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
 	public void onClick(InventoryClickEvent e) {
 		if (!(e.getWhoClicked() instanceof OfflinePlayer p)) return;
 		InventoryView view = e.getView();
-		SilverPlayer sp = SilverPlayer.fromPlayer(p);	
+		SilverPlayer sp = new SilverPlayer(p);	
 		if (!(ChatColor.stripColor(view.getTitle()).contains("SilverSkillz - Player Settings"))) return;
 		if (e.getCurrentItem() == null) return;
 		e.setCancelled(true);
@@ -98,7 +98,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		Player p = (Player) sender;
 
 		p.playSound(p.getLocation(), Sound.BLOCK_CHEST_OPEN, 3F, 1F);
-		p.openInventory(settingsInventory(SilverPlayer.fromPlayer(p)));
+		p.openInventory(settingsInventory(new SilverPlayer(p)));
 
 		return true;
 	}

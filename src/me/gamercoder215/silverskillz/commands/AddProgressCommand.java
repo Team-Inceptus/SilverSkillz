@@ -35,7 +35,7 @@ public final class AddProgressCommand implements CommandExecutor {
 			return false;
 		}
 		
-		SilverPlayer target = SilverPlayer.fromPlayer(Bukkit.getPlayer(args[0]));
+		SilverPlayer target = new SilverPlayer(Bukkit.getPlayer(args[0]));
 		if (args.length < 2) {
 			SilverSkillz.sendPluginMessage(sender, "Please provide an increase amount.");
 			return false;

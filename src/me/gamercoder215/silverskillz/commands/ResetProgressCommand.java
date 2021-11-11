@@ -35,7 +35,7 @@ public final class ResetProgressCommand implements CommandExecutor {
 			return false;
 		}
 		
-		SilverPlayer target = SilverPlayer.fromPlayer(Bukkit.getPlayer(args[0]));
+		SilverPlayer target = new SilverPlayer(Bukkit.getPlayer(args[0]));
 		
 		try {
 			if (args.length < 2) {
