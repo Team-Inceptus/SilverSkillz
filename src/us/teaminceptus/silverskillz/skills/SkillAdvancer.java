@@ -1,4 +1,4 @@
-package me.gamercoder215.silverskillz.skills;
+package us.teaminceptus.silverskillz.skills;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -51,8 +51,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import me.gamercoder215.silverskillz.SilverPlayer;
-import me.gamercoder215.silverskillz.SilverSkillz;
+import us.teaminceptus.silverskillz.SilverPlayer;
+import us.teaminceptus.silverskillz.SilverSkillz;
 
 public final class SkillAdvancer implements Listener {
 	

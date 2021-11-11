@@ -1,12 +1,12 @@
-package me.gamercoder215.silverskillz.commands;
+package us.teaminceptus.silverskillz.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.gamercoder215.silverskillz.SilverSkillz;
-import me.gamercoder215.silverskillz.skills.Skill;
+import us.teaminceptus.silverskillz.SilverSkillz;
+import us.teaminceptus.silverskillz.skills.Skill;
 
 public final class SkillsCommand implements CommandExecutor {
 	

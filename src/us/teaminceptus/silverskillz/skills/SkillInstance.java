@@ -1,8 +1,8 @@
-package me.gamercoder215.silverskillz.skills;
+package us.teaminceptus.silverskillz.skills;
 
 import java.io.IOException;
 
-import me.gamercoder215.silverskillz.SilverPlayer;
+import us.teaminceptus.silverskillz.SilverPlayer;
 
 /**
  * Represents a Skill Instance from SilverPlayer#getSkill(Skill)

@@ -1,4 +1,4 @@
-package me.gamercoder215.silverskillz.commands;
+package us.teaminceptus.silverskillz.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -7,17 +7,17 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.gamercoder215.silverskillz.SilverPlayer;
-import me.gamercoder215.silverskillz.SilverSkillz;
-import me.gamercoder215.silverskillz.skills.Skill;
+import us.teaminceptus.silverskillz.SilverPlayer;
+import us.teaminceptus.silverskillz.SilverSkillz;
+import us.teaminceptus.silverskillz.skills.Skill;
 
-public final class ResetProgressCommand implements CommandExecutor {
+public final class RemoveProgressCommand implements CommandExecutor {
 	
 	protected SilverSkillz plugin;
 	
-	public ResetProgressCommand(SilverSkillz plugin) {
+	public RemoveProgressCommand(SilverSkillz plugin) {
 		this.plugin = plugin;
-		plugin.getCommand("resetprogress").setExecutor(this);
+		plugin.getCommand("removeprogress").setExecutor(this);
 	}
 
 	
@@ -36,16 +36,20 @@ public final class ResetProgressCommand implements CommandExecutor {
 		}
 		
 		SilverPlayer target = new SilverPlayer(Bukkit.getPlayer(args[0]));
+		if (args.length < 2) {
+			SilverSkillz.sendPluginMessage(sender, "Please provide an increase amount.");
+			return false;
+		}
 		
 		try {
-			if (args.length < 2) {
-				for (Skill s : Skill.values()) {
-					target.getSkill(s).setProgress(0);
-				}
-				sender.sendMessage(ChatColor.GREEN + "Successfully reset progress for each skill.");
+			if (!(args.length < 3)) {
+				target.getSkill(Skill.matchSkill(args[2])).removeProgress(Double.parseDouble(args[1]));
+				sender.sendMessage(ChatColor.GREEN + "Decrease skill successful.");
 			} else {
-				target.getSkill(Skill.matchSkill(args[1])).setProgress(0);
-				sender.sendMessage(ChatColor.GREEN + "Successfully reset progress.");
+				for (Skill s : Skill.values()) {
+					target.getSkill(s).removeProgress(Double.parseDouble(args[1]));
+				}
+				sender.sendMessage(ChatColor.GREEN + "Decrease skills successful.");
 			}
 		} catch (IllegalArgumentException e) {
 			SilverSkillz.sendPluginMessage(sender, "There was an error parsing arguments.");

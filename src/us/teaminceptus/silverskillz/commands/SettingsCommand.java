@@ -1,4 +1,4 @@
-package me.gamercoder215.silverskillz.commands;
+package us.teaminceptus.silverskillz.commands;
 
 import java.io.IOException;
 
@@ -21,9 +21,9 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import me.gamercoder215.silverskillz.SilverPlayer;
-import me.gamercoder215.silverskillz.SilverSkillz;
-import me.gamercoder215.silverskillz.skills.SkillUtils;
+import us.teaminceptus.silverskillz.SilverPlayer;
+import us.teaminceptus.silverskillz.SilverSkillz;
+import us.teaminceptus.silverskillz.skills.SkillUtils;
 
 public class SettingsCommand implements CommandExecutor, Listener {
 

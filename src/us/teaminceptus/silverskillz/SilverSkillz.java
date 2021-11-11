@@ -1,4 +1,4 @@
-package me.gamercoder215.silverskillz;
+package us.teaminceptus.silverskillz;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,14 +9,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.gamercoder215.silverskillz.commands.AddProgressCommand;
-import me.gamercoder215.silverskillz.commands.RemoveProgressCommand;
-import me.gamercoder215.silverskillz.commands.ResetProgressCommand;
-import me.gamercoder215.silverskillz.commands.SettingsCommand;
-import me.gamercoder215.silverskillz.commands.SkillsCommand;
-import me.gamercoder215.silverskillz.skills.Skill;
-import me.gamercoder215.silverskillz.skills.SkillAdvancer;
-import me.gamercoder215.silverskillz.skills.SkillUtils;
+import us.teaminceptus.silverskillz.commands.AddProgressCommand;
+import us.teaminceptus.silverskillz.commands.RemoveProgressCommand;
+import us.teaminceptus.silverskillz.commands.ResetProgressCommand;
+import us.teaminceptus.silverskillz.commands.SettingsCommand;
+import us.teaminceptus.silverskillz.commands.SkillsCommand;
+import us.teaminceptus.silverskillz.skills.Skill;
+import us.teaminceptus.silverskillz.skills.SkillAdvancer;
+import us.teaminceptus.silverskillz.skills.SkillUtils;
 
 public class SilverSkillz extends JavaPlugin {
 	

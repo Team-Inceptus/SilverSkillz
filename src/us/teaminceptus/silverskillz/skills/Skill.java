@@ -1,4 +1,4 @@
-package me.gamercoder215.silverskillz.skills;
+package us.teaminceptus.silverskillz.skills;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -26,8 +26,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.gamercoder215.silverskillz.SilverPlayer;
-import me.gamercoder215.silverskillz.SilverSkillz;
+import us.teaminceptus.silverskillz.SilverPlayer;
+import us.teaminceptus.silverskillz.SilverSkillz;
 
 /**
  * Enum containing skills for the plugin

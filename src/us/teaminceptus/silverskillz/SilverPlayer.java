@@ -1,4 +1,4 @@
-package me.gamercoder215.silverskillz;
+package us.teaminceptus.silverskillz;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +12,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.gamercoder215.silverskillz.skills.Skill;
-import me.gamercoder215.silverskillz.skills.SkillInstance;
+import us.teaminceptus.silverskillz.skills.Skill;
+import us.teaminceptus.silverskillz.skills.SkillInstance;
 
 public class SilverPlayer {
 

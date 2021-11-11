@@ -1,4 +1,4 @@
-package me.gamercoder215.silverskillz.skills;
+package us.teaminceptus.silverskillz.skills;
 
 import java.util.Map;
 
@@ -21,10 +21,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import me.gamercoder215.silverskillz.SilverPlayer;
-import me.gamercoder215.silverskillz.SilverSkillz;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import us.teaminceptus.silverskillz.SilverPlayer;
+import us.teaminceptus.silverskillz.SilverSkillz;
 
 public class SkillUtils implements Listener {
 	
