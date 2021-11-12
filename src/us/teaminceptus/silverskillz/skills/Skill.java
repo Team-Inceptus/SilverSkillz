@@ -167,7 +167,7 @@ public enum Skill {
 	
 	protected static void awardLevelUp(SilverPlayer p, Skill s, boolean hasLeveled, double increaseBy) {
 		if (p.getOnlinePlayer() == null) return;
-
+		if (s == TRAVELER) return;
 		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;
 		if (!(p.canSeeSkillMessages())) return;
 		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + "+" + df.format(increaseBy) + " " + s.getCapitalizedName() + " Experience");
@@ -634,7 +634,7 @@ public enum Skill {
 	}
 	
 	/**
-	 * Capitalize
+	 * Capitalized Name
 	 * @return String containing capitalized name
 	 */
 	public final String getCapitalizedName() {
@@ -644,7 +644,7 @@ public enum Skill {
 	// Public Static Methods
 	
 	/**
-	 * 
+	 * Match the minimum combat experience for this entity type
 	 * @param t Entity Type to use
 	 * @return A double containing the minimum amount of combat experience a player will receive when killed
 	 */
@@ -657,7 +657,7 @@ public enum Skill {
 	}
 	
 	/**
-	 * 
+	 * Match the minimum combat experience for this living  entity
 	 * @param e Entity to match off of
 	 * @return A double containing the minimum amount of combat experience a player will receive when killed
 	 */

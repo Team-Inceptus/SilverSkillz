@@ -15,6 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import us.teaminceptus.silverskillz.skills.Skill;
 import us.teaminceptus.silverskillz.skills.SkillInstance;
 
+/**
+ * Represents a Player in the SilverSkillz
+ * @author Team Inceptus
+ *
+ */
 public class SilverPlayer {
 
 	private final OfflinePlayer player;
@@ -22,7 +27,11 @@ public class SilverPlayer {
 	private final File file;
 	private static final File directory = new File(JavaPlugin.getPlugin(SilverSkillz.class).getDataFolder().getPath() + "/players");;
 	private final FileConfiguration playerConfig;
-
+	
+	/**
+	 * Generate a SilverPlayer from an OfflinePlayer
+	 * @param p The Player to Use
+	 */
 	public SilverPlayer(OfflinePlayer p) {
 		this.player = p;
 
@@ -46,15 +55,26 @@ public class SilverPlayer {
 		reloadValues();
 	}
 	
+	/**
+	 * Gets the directory of all of the player files
+	 * @return File of player directory
+	 */
 	public static final File getPlayerDirectory() {
 		return SilverPlayer.directory;
 	}
 	
+	/**
+	 * Gets the data fiel for this player
+	 * @return File of this player
+	 */
 	public final File getPlayerFile() {
 		return this.file;
 	}
 	
-	public void reloadValues() {
+	/**
+	 * Reloads values for this player
+	 */
+	public final void reloadValues() {
 		OfflinePlayer p = player;
 		// Settings
 
@@ -164,10 +184,14 @@ public class SilverPlayer {
 		}
 	}
 	
+	/**
+	 * The OfflinePlayer version of this player
+	 * @return OfflinePlayer for this player
+	 */
 	public OfflinePlayer getPlayer() {
 		return this.player;
 	}
-	
+
 	public boolean equals(Object obj) {
 		if (!(obj instanceof SilverPlayer)) return false;
 		
@@ -175,6 +199,11 @@ public class SilverPlayer {
 		
 		return (other.getPlayer().getUniqueId().equals(this.getPlayer().getUniqueId()));
 	}
+	
+	/**
+	 * The Player version of this player
+	 * @return Player for this player, may be null
+	 */
 	@Nullable
 	public Player getOnlinePlayer() {
 		if (getPlayer().isOnline()) {

@@ -42,8 +42,14 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		ItemMeta mMeta = messages.getItemMeta();
 		mMeta.setDisplayName(ChatColor.YELLOW + "Skill Messages: " + (p.canSeeSkillMessages() ? ChatColor.GREEN + "On" : ChatColor.RED + "Off"));
 		messages.setItemMeta(mMeta);
-
+		
+		ItemStack potionEffects = new ItemStack((p.hasPotionEffects() ? Material.LIME_CONCRETE : Material.RED_CONCRETE));
+		ItemMeta pMeta = messages.getItemMeta();
+		pMeta.setDisplayName(ChatColor.YELLOW + "Potion Effects: " + (p.hasPotionEffects() ? ChatColor.GREEN + "On" : ChatColor.RED + "Off"));
+		potionEffects.setItemMeta(pMeta);
+		
 		inv.setItem(10, messages);
+		inv.setItem(11, potionEffects);
 
 		return inv;
 	}
@@ -51,8 +57,8 @@ public class SettingsCommand implements CommandExecutor, Listener {
 	@Nullable
 	private static String matchSetting(ItemStack i) {
 		String name = ChatColor.stripColor(i.getItemMeta().getDisplayName()).toLowerCase().replaceAll("on", "").replaceAll("off", "").replaceAll(" ", "").replaceAll(":", "");
-
 		if (name.equalsIgnoreCase("skillmessages")) return "messages";
+		else if (name.equalsIgnoreCase("potieffects")) return "potion-effects";
 		else return null;
 	}
 

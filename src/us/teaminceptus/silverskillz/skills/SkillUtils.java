@@ -26,6 +26,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 import us.teaminceptus.silverskillz.SilverPlayer;
 import us.teaminceptus.silverskillz.SilverSkillz;
 
+/**
+ * Represents events and Utilities for SilverSkillz
+ * @author Team Inceptus
+ *
+ */
 public class SkillUtils implements Listener {
 	
 	protected SilverSkillz plugin;

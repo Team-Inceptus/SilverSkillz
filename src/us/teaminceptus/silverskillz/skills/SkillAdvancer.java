@@ -1,6 +1,5 @@
 package us.teaminceptus.silverskillz.skills;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,6 +53,11 @@ import org.bukkit.util.Vector;
 import us.teaminceptus.silverskillz.SilverPlayer;
 import us.teaminceptus.silverskillz.SilverSkillz;
 
+/**
+ * Represents Advancer and Skill Effects for the plugin
+ * @author Team Inceptus
+ *
+ */
 public final class SkillAdvancer implements Listener {
 	
 	protected SilverSkillz plugin;
@@ -63,8 +67,7 @@ public final class SkillAdvancer implements Listener {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 	
-	static DecimalFormat df = new DecimalFormat("###.#");
-	static Random r = new Random();
+	private static Random r = new Random();
 	
 	@EventHandler
 	public void incrementSkill(PlayerAdvancementDoneEvent e) {
@@ -139,7 +142,7 @@ public final class SkillAdvancer implements Listener {
 	}
 	
 	// Map Cache for Enchant Offers
-	Map<UUID, EnchantmentOffer[]> offers = new HashMap<>();
+	private Map<UUID, EnchantmentOffer[]> offers = new HashMap<>();
 	
 	@EventHandler
 	public void skillEffect(PrepareItemEnchantEvent e) {

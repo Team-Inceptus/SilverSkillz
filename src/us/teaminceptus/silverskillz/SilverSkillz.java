@@ -18,8 +18,18 @@ import us.teaminceptus.silverskillz.skills.Skill;
 import us.teaminceptus.silverskillz.skills.SkillAdvancer;
 import us.teaminceptus.silverskillz.skills.SkillUtils;
 
+/**
+ * Main Plugin class for SilverSkillz
+ * @author GamerCoder215
+ *
+ */
 public class SilverSkillz extends JavaPlugin {
 	
+	/**
+	 * Send a message from SilverSkillz plugin
+	 * @param sender Sender to send it to
+	 * @param msg The message to send
+	 */
 	public static void sendPluginMessage(CommandSender sender, String msg) {
 		sender.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GRAY + "SilverSkillz" + ChatColor.DARK_GREEN + "] " + ChatColor.RED + msg);
 	}
