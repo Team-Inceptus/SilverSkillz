@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>us.teaminceptus</groupId>
   <artifactId>SilverSkillz</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>SilverSkillz</name>
   <description>Edit your minecraft experience with many new skills!</description>
   <build>
