@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -670,9 +668,8 @@ public enum Skill {
 	/**
 	 * A static method to convert names from getName() to skill
 	 * @param name Skill name
-	 * @return Skill enum from name
+	 * @return Skill enum from name, may be null
 	 */
-	@Nullable
 	public static Skill matchSkill(String name) {
 		for (Skill s : Skill.values()) {
 			if (s.getName().equalsIgnoreCase(name)) {

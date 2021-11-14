@@ -3,8 +3,6 @@ package us.teaminceptus.silverskillz;
 import java.io.File;
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -204,7 +202,6 @@ public class SilverPlayer {
 	 * The Player version of this player
 	 * @return Player for this player, may be null
 	 */
-	@Nullable
 	public Player getOnlinePlayer() {
 		if (getPlayer().isOnline()) {
 			return ((Player) getPlayer());

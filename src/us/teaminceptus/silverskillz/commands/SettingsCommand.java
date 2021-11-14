@@ -2,8 +2,6 @@ package us.teaminceptus.silverskillz.commands;
 
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -53,8 +51,6 @@ public class SettingsCommand implements CommandExecutor, Listener {
 
 		return inv;
 	}
-	
-	@Nullable
 	private static String matchSetting(ItemStack i) {
 		String name = ChatColor.stripColor(i.getItemMeta().getDisplayName()).toLowerCase().replaceAll("on", "").replaceAll("off", "").replaceAll(" ", "").replaceAll(":", "");
 		if (name.equalsIgnoreCase("skillmessages")) return "messages";
