@@ -162,6 +162,13 @@ public enum Skill {
 		this.modifiers = modifiers;
 		this.icon = icon;
 	}
+
+  /**
+  * Default name used internally, getName() can change with messages.yml
+  */
+  public final String getDefaultName() {
+    return this.name;
+  }
 	
 	protected static void awardLevelUp(SilverPlayer p, Skill s, boolean hasLeveled, double increaseBy) {
 		if (p.getOnlinePlayer() == null) return;
@@ -182,7 +189,7 @@ public enum Skill {
 	 * @return Inventory containing menu
 	 */
 	public static final Inventory getMenu() {
-		Inventory menu = SkillUtils.generateGUI(54, ChatColor.DARK_AQUA + "Player Skills");
+		Inventory menu = SkillUtils.generateGUI(54, ChatColor.DARK_AQUA + SilverSkillz.getMessagesFile().getConfigurationSection("InventoryTitles").getString("SkillMenu"));
 		
 		menu.setItem(19, COMBAT.getIconAsStack());
 		menu.setItem(21, ARCHERY.getIconAsStack());

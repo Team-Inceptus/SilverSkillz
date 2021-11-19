@@ -2,3 +2,7 @@
 
 # Whether or not to display achievement messages when earned
 DisplayMessages: true
+
+# Disabled Commands, by name or alias
+DisabledCommands:
+

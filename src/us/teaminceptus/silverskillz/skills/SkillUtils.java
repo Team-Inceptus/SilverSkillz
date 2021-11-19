@@ -43,6 +43,8 @@ public class SkillUtils implements Listener {
 	public final static void sendActionBar(Player p, final String message) {
 		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
 	}
+
+  private String inventoryName = plugin.getMessagesFile().getString("PluginName") + " - ";
 	
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {
@@ -50,7 +52,7 @@ public class SkillUtils implements Listener {
 		Player p = (Player) e.getWhoClicked();
 		SilverPlayer sp = new SilverPlayer(p);
 		if (e.getCurrentItem() == null) return;
-		if (!(view.getTitle().contains("SilverSkillz - "))) return;
+		if (!(view.getTitle().contains(inventoryName))) return;
 		e.setCancelled(true);
 		
 		if (e.getCurrentItem().getType() == Material.ARROW) {
@@ -93,7 +95,7 @@ public class SkillUtils implements Listener {
 	}
 	
 	public static Inventory generateGUI(int size, String label) {
-	   	Inventory inv = Bukkit.createInventory(null, size, ChatColor.GOLD + "SilverSkillz - " + label);
+	   	Inventory inv = Bukkit.createInventory(null, size, ChatColor.GOLD + inventoryName + label);
 	   	ItemStack guiBG = getInventoryPlaceholder();
 		
 		if (size < 27) return inv;

@@ -33,6 +33,8 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 
+  private static String settingsInventoryName = SilverSkillz.getMessagesFile().getConfigurationSection("InventoryTitles").getString("Settings");
+
 	public final static Inventory settingsInventory(SilverPlayer p) {
 		Inventory inv = SkillUtils.generateGUI(45, ChatColor.DARK_AQUA + "Player Settings");
 

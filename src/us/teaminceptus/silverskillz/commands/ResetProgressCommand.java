@@ -20,18 +20,21 @@ public final class ResetProgressCommand implements CommandExecutor {
 		plugin.getCommand("resetprogress").setExecutor(this);
 	}
 
+  private static String errorMsg = SilverSkillz.getMessagesFile().getString("Error");
+  private static String errorArguments = SilverSkillz.getMessagesFile().getString("ErrorArguments");
+  private static String validPlayer = SilverSkillz.getMessagesFile().getString("InvalidPlayer");
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (!(sender instanceof Player)) return true;
 		
 		if (args.length < 1) {
-			SilverSkillz.sendPluginMessage(sender, "Please provide a valid player.");
+			SilverSkillz.sendPluginMessage(sender, validPlayer);
 			return false;
 		}
 		
 		if (Bukkit.getPlayer(args[0]) == null) {
-			SilverSkillz.sendPluginMessage(sender, "Please provide a valid player.");
+			SilverSkillz.sendPluginMessage(sender, validPlayer);
 			return false;
 		}
 		
@@ -42,19 +45,19 @@ public final class ResetProgressCommand implements CommandExecutor {
 				for (Skill s : Skill.values()) {
 					target.getSkill(s).setProgress(0);
 				}
-				sender.sendMessage(ChatColor.GREEN + "Successfully reset progress for each skill.");
+				sender.sendMessage(ChatColor.GREEN + SilverSkillz.getMessagesFile().getString("SuccessResetAll"));
 			} else {
 				target.getSkill(Skill.matchSkill(args[1])).setProgress(0);
-				sender.sendMessage(ChatColor.GREEN + "Successfully reset progress.");
+				sender.sendMessage(ChatColor.GREEN + SilverSkillz.getMessagesFile().getString("SuccessReset"));
 			}
 		} catch (IllegalArgumentException e) {
-			SilverSkillz.sendPluginMessage(sender, "There was an error parsing arguments.");
+			SilverSkillz.sendPluginMessage(sender, errorArguments);
 			return false;
 		} catch (NullPointerException e) {
-			SilverSkillz.sendPluginMessage(sender, "There was an error parsing arguments.");
+			SilverSkillz.sendPluginMessage(sender, errorArguments);
 			return false;
 		} catch (Exception e) {
-			SilverSkillz.sendPluginMessage(sender, "There was an error:\n" + e.getLocalizedMessage());
+			SilverSkillz.sendPluginMessage(sender, errorMsg + ":\n" + e.getLocalizedMessage());
 			return false;
 		}
 		

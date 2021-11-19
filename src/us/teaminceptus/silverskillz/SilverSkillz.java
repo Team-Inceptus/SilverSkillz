@@ -25,6 +25,9 @@ import us.teaminceptus.silverskillz.skills.SkillUtils;
  */
 public class SilverSkillz extends JavaPlugin {
 	
+	private final SilverSkillz sk = this;
+
+	private static final File messagesFile = new File(getPlugin(SilverSkillz.class).getDataFolder(), "messages.yml");
 	/**
 	 * Send a message from SilverSkillz plugin
 	 * @param sender Sender to send it to
@@ -33,6 +36,23 @@ public class SilverSkillz extends JavaPlugin {
 	public static void sendPluginMessage(CommandSender sender, String msg) {
 		sender.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GRAY + "SilverSkillz" + ChatColor.DARK_GREEN + "] " + ChatColor.RED + msg);
 	}
+
+	public static final FileConfiguration getMessagesFile() {
+		try {
+			if (!(messagesFile.exists())) {
+				messagesFile.createNewFile();
+			}
+      reloadMessagesFile();
+			return YamlConfiguration.loadConfiguration(messagesFile);
+		} catch (IllegalArgumentException) {
+			getLogger().info("Error fetching messages file");
+			e.printStackTrace();
+		}
+	}
+
+  public static void reloadMessagesFile() {
+    
+  }
 	
 	public void onEnable() {	
 		this.saveDefaultConfig();
@@ -46,15 +66,29 @@ public class SilverSkillz extends JavaPlugin {
 		new ResetProgressCommand(this);
 		new RemoveProgressCommand(this);
 		new SettingsCommand(this);
-		
-		// Config Checks
-		if (this.getConfig().get("DisplayMessages") == null) {
-			this.getConfig().set("DisplayMessages", true);
-		}
-		
+
+		// Config Check
 		if (!(this.getConfig().isBoolean("DisplayMessages"))) {
 			this.getConfig().set("DisplayMessages", true);
 		}
+
+    if (!(this.getConfig().isList("DisabledCommands"))) {
+      this.getConfig().set("DisabledCommands", new ArrayList<String>());
+    }
+
+    // Disabled Commands
+    try {
+      for (PluginCommand c : this.getDescription().getCommands()) {
+        for (String s : this.getConfig().getStringList("DisabledCommands")) {
+          if (c.getName().equalsIgnoreCase(s) || c.getAliases().contains(s)) {
+            c.setExecutor(null);
+          }
+        }
+      }
+    } catch (Exception e) {
+      getLogger().info("Malformed Config");
+      e.printStackTrace();
+    }
 		
 		// Global Effects
 		new BukkitRunnable() {
