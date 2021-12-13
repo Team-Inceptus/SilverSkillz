@@ -44,7 +44,7 @@ public class SkillUtils implements Listener {
 		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
 	}
 
-  private String inventoryName = plugin.getMessagesFile().getString("PluginName") + " - ";
+  private static String inventoryName = SilverSkillz.getMessagesFile().getString("PluginName") + " - ";
 	
 	@EventHandler
 	public void onClick(InventoryClickEvent e) {

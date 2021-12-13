@@ -10,31 +10,42 @@ InventoryTitles:
   Settings: Player Settings
   SkillMenu: Player Skills
 
+# Players can disable this in /settings; please remind them to turn on "Use Messages Names" (Default is on)
+# DO NOT CAPITALIZE
+SkillNames:
+  Combat: combat
+  Archery: archery
+  Advancer: advancer
+  Aquatics: aquatics
+  Archery: archery
+  Brewer: brewer
+  Cleaner: cleaner
+  Builder: builder
+  Enchanter: enchanter
+  Social: social
+  Traveler: traveler
+  Mining: mining
+  Smithing: smithing
+  Collector: collector
+  Farming: farming
+  Husbandry: husbandry
 # Item Names inside inventories
 InventoryItems:
-  # This inventory supports $skill$ and $player$
+  # This inventory supports $skill$, $capitalskill$ and $player$ for ALL
   SkillInventory:
     NextPage: Next Page
     PreviousPage: Previous Page
     Back: Back
     PlayerStatistics: $player$'s Statistics
-    # Players can disable this in /settings; please remind them to turn on "Use Messages Names" (Default is on)
-    # DO NOT CAPITALIZE
-    SkillNames:
-      Combat: combat
-      Archery: archery
-      
-    
-
 
 
 # Error & Invalid Messages
 InvalidPlayer: Please provide a valid player.
 InvalidAmount: Please provide a valid amount.
 
-ErrorArguments: "There was an error parsing arguments.
+ErrorArguments: There was an error parsing arguments.
 # After this message, a stack trace will be displayed; it is not recommended to use punctuation
-Erorr: "There was an error"
+Erorr: There was an error
 
 # Success Messages
 SuccessIncrease: Increase skill successful.
@@ -51,5 +62,5 @@ SuccessResetAll: Successfully reset each skill.
 
 # Messages below can now use $skill$ for the player's skill, and
 # $exp$ for the amount of experience
-LevelUp: $player$ has leveled up!
-ExperienceGain: +$exp$ Experience
+LevelUp: $skill$ has leveled up!
+ExperienceGain: +$exp$ $skill$ Experience

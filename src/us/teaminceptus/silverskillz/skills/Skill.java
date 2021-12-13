@@ -167,7 +167,11 @@ public enum Skill {
   * Default name used internally, getName() can change with messages.yml
   */
   public final String getDefaultName() {
-    return this.name;
+	  return this.name;
+  }
+  
+  public final String getCapitalizedDefaultName() {
+	  return (getDefaultName().substring(0, 1).toUpperCase() + getName().substring(1));
   }
 	
 	protected static void awardLevelUp(SilverPlayer p, Skill s, boolean hasLeveled, double increaseBy) {
@@ -175,12 +179,11 @@ public enum Skill {
 		if (s == TRAVELER) return;
 		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;
 		if (!(p.canSeeSkillMessages())) return;
-		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + "+" + df.format(increaseBy) + " " + s.getCapitalizedName() + " Experience");
+		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + SilverSkillz.getMessagesFile().getString("ExperienceGain").replaceAll("$exp$", df.format(increaseBy).replaceAll("$skill$", s.getCapitalizedName())).replaceAll("$player$", p.getPlayer().getName()));
 		
 		if (hasLeveled) {
 			Player pl = p.getOnlinePlayer();
-			
-			pl.sendTitle(ChatColor.GOLD + s.getCapitalizedName() + " Has leveled Up!", "", 5, 100, 10);
+			pl.sendTitle(ChatColor.GOLD + SilverSkillz.getMessagesFile().getString("LevelUp").replaceAll("$skill$", s.getCapitalizedName()).replaceAll("$player$", p.getPlayer().getName()).replaceAll("$skill$", s.getCapitalizedName()), "", 5, 100, 10);
 		}
 	}
 	
@@ -216,6 +219,11 @@ public enum Skill {
 	 * @return A Map listing the inventories by page (starting at 0)
 	 */
 	public final Map<Integer, Inventory> generateInventories(SilverPlayer p) {
+		String statistics = SilverSkillz.getMessagesFile().getConfigurationSection("InventoryItems").getConfigurationSection("SkillInventory").getString("PlayerStatistics").replaceAll("$player$", p.getPlayer().getName()).replaceAll("$skill$", this.getName()).replaceAll("$capitalskill$", this.getCapitalizedName());
+		String nextPage = SilverSkillz.getMessagesFile().getConfigurationSection("InventoryItems").getConfigurationSection("SkillInventory").getString("NextPage").replaceAll("$player$", p.getPlayer().getName()).replaceAll("$skill$", this.getName()).replaceAll("$capitalskill$", this.getCapitalizedName());
+		String previousPage = SilverSkillz.getMessagesFile().getConfigurationSection("InventoryItems").getConfigurationSection("SkillInventory").getString("PreviousPage").replaceAll("$player$", p.getPlayer().getName()).replaceAll("$skill$", this.getName()).replaceAll("$capitalskill$", this.getCapitalizedName());
+		String back = SilverSkillz.getMessagesFile().getConfigurationSection("InventoryItems").getConfigurationSection("SkillInventory").getString("Back").replaceAll("$player$", p.getPlayer().getName()).replaceAll("$skill$", this.getName()).replaceAll("$capitalskill$", this.getCapitalizedName());
+		
 		Map<Integer, Inventory> pages = new HashMap<>();
 		
 		Map<Short, ItemStack> panels = getInventoryIcons(this, p);
@@ -223,7 +231,7 @@ public enum Skill {
 		ItemStack headInfo = new ItemStack(Material.PLAYER_HEAD);
 		SkullMeta headMeta = (SkullMeta) headInfo.getItemMeta();
 		headMeta.setOwningPlayer(p.getPlayer());
-		headMeta.setDisplayName(ChatColor.GOLD + p.getPlayer().getName() + "'s " + this.getCapitalizedName() + " Statistics");
+		headMeta.setDisplayName(ChatColor.GOLD + statistics);
 		List<String> info = new ArrayList<>();
 		info.add(ChatColor.GREEN + SkillUtils.withSuffix(p.getSkill(this).getProgress()) + " Total Progress");
 		info.add(ChatColor.DARK_GREEN + "Level " + Short.toString(p.getSkill(this).getLevel()));
@@ -232,17 +240,17 @@ public enum Skill {
 		
 		ItemStack arrowForward = new ItemStack(Material.ARROW);
 		ItemMeta forwardMeta = arrowForward.getItemMeta();
-		forwardMeta.setDisplayName(ChatColor.GREEN + "Next Page");
+		forwardMeta.setDisplayName(ChatColor.GREEN + nextPage);
 		arrowForward.setItemMeta(forwardMeta);
 		
 		ItemStack arrowBack = new ItemStack(Material.ARROW);
 		ItemMeta backMeta = arrowForward.getItemMeta();
-		backMeta.setDisplayName(ChatColor.GREEN + "Previous Page");
+		backMeta.setDisplayName(ChatColor.GREEN + previousPage);
 		arrowBack.setItemMeta(backMeta);
 		
 		ItemStack menuBack = new ItemStack(Material.BEACON);
 		ItemMeta menuMeta = menuBack.getItemMeta();
-		menuMeta.setDisplayName(ChatColor.RED + "Back");
+		menuMeta.setDisplayName(ChatColor.RED + back);
 		menuBack.setItemMeta(menuMeta);
 		// First Page
 		Inventory firstPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill");
@@ -624,18 +632,31 @@ public enum Skill {
 	}
 	
 	/**
-	 * Gets the readable name of this skill
+	 * Gets the name of the skill used in messages.yml
 	 * @return Skill name
 	 */
 	public final String getName() {
-		return this.name;
+		return (SilverSkillz.getMessagesFile().getConfigurationSection("SkillNames").getString(getCapitalizedDefaultName()));
+	}
+	
+	/**
+	 * Gets the name that the player sees based on the setting "Use Messages Names"
+	 * @param sp The player to use off of
+	 * @return Skill name that the player sees
+	 */
+	public final String getName(SilverPlayer sp) {
+		if (sp.hasMessagesOn()) {
+			return getName();
+		} else {
+			return getDefaultName();
+		}
 	}
 	
 	/**
 	 * Duplicate of getName()
 	 */
 	public String toString() {
-		return this.name;
+		return getName();
 	}
 	
 	/**

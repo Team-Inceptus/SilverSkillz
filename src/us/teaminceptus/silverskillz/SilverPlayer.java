@@ -62,7 +62,7 @@ public class SilverPlayer {
 	}
 	
 	/**
-	 * Gets the data fiel for this player
+	 * Gets the data file for this player
 	 * @return File of this player
 	 */
 	public final File getPlayerFile() {
@@ -231,6 +231,14 @@ public class SilverPlayer {
 	 */
 	public final boolean hasPotionEffects() {
 		return this.playerConfig.getConfigurationSection("settings").getBoolean("potion-effects");
+	}
+	
+	/**
+	 * If player is using the messages in messages.yml
+	 * @return true if on, else false
+	 */
+	public final boolean hasMessagesOn() {
+		return this.playerConfig.getConfigurationSection("settings").getBoolean("custom-messages");
 	}
 	
 	/**

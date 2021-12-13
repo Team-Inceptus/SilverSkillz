@@ -36,7 +36,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
   private static String settingsInventoryName = SilverSkillz.getMessagesFile().getConfigurationSection("InventoryTitles").getString("Settings");
 
 	public final static Inventory settingsInventory(SilverPlayer p) {
-		Inventory inv = SkillUtils.generateGUI(45, ChatColor.DARK_AQUA + "Player Settings");
+		Inventory inv = SkillUtils.generateGUI(45, ChatColor.DARK_AQUA + settingsInventoryName);
 
 		ItemStack messages = new ItemStack((p.canSeeSkillMessages() ? Material.LIME_CONCRETE : Material.RED_CONCRETE));
 		ItemMeta mMeta = messages.getItemMeta();
@@ -48,6 +48,11 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		pMeta.setDisplayName(ChatColor.YELLOW + "Potion Effects: " + (p.hasPotionEffects() ? ChatColor.GREEN + "On" : ChatColor.RED + "Off"));
 		potionEffects.setItemMeta(pMeta);
 		
+		ItemStack customMessages = new ItemStack((p.hasPotionEffects() ? Material.LIME_CONCRETE : Material.RED_CONCRETE));
+		ItemMeta cMeta = customMessages.getItemMeta();
+		cMeta.setDisplayName(ChatColor.YELLOW + "Use Messages Names: " + (p.hasMessagesOn() ? ChatColor.GREEN + "On" : ChatColor.RED + "Off"));
+		customMessages.setItemMeta(cMeta);
+		
 		inv.setItem(10, messages);
 		inv.setItem(11, potionEffects);
 
@@ -57,6 +62,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		String name = ChatColor.stripColor(i.getItemMeta().getDisplayName()).toLowerCase().replaceAll("on", "").replaceAll("off", "").replaceAll(" ", "").replaceAll(":", "");
 		if (name.equalsIgnoreCase("skillmessages")) return "messages";
 		else if (name.equalsIgnoreCase("potieffects")) return "potion-effects";
+		else if (name.equalsIgnoreCase("usemessagesnames")) return "custom-messages";
 		else return null;
 	}
 
@@ -87,7 +93,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		if (!(e.getWhoClicked() instanceof OfflinePlayer p)) return;
 		InventoryView view = e.getView();
 		SilverPlayer sp = new SilverPlayer(p);	
-		if (!(ChatColor.stripColor(view.getTitle()).contains("SilverSkillz - Player Settings"))) return;
+		if (!(ChatColor.stripColor(view.getTitle()).contains(settingsInventoryName))) return;
 		if (e.getCurrentItem() == null) return;
 		e.setCancelled(true);
 		Inventory gui = view.getTopInventory();
