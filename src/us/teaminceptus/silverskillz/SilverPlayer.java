@@ -73,6 +73,8 @@ public class SilverPlayer {
 	 * Reloads values for this player
 	 */
 	public final void reloadValues() {
+		SilverSkillz.reloadMessagesFile();
+		
 		OfflinePlayer p = player;
 		// Settings
 
