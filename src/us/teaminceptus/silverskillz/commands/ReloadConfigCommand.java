@@ -18,9 +18,8 @@ public class ReloadConfigCommand implements CommandExecutor {
   @Override
   public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 	sender.sendMessage(ChatColor.GREEN + "Reloading...");
-	plugin.saveConfig();
 	plugin.reloadConfig();
-	SilverSkillz.getMessagesFile();
+	SilverSkillz.reloadMessagesFile();
 	plugin.saveConfig();
 	sender.sendMessage(ChatColor.GREEN + "Reloaded! This will update all files related to the SilverSkillz plugin, except for player files. The JAR is not updated; you may need to restart or reload your server to update the JAR.");
 	
