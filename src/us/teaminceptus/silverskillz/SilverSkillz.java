@@ -1,14 +1,10 @@
 package us.teaminceptus.silverskillz;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,6 +15,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import us.teaminceptus.silverskillz.commands.AddProgressCommand;
+import us.teaminceptus.silverskillz.commands.ReloadConfigCommand;
 import us.teaminceptus.silverskillz.commands.RemoveProgressCommand;
 import us.teaminceptus.silverskillz.commands.ResetProgressCommand;
 import us.teaminceptus.silverskillz.commands.SettingsCommand;
@@ -48,7 +45,7 @@ public class SilverSkillz extends JavaPlugin {
 
 	public static final FileConfiguration getMessagesFile() {
 		try {
-			File messages = new File(JavaPlugin.getPlugin(SilverSkillz.class).getDataFolder().getPath(), "messages.yml");
+			File messages = new File(JavaPlugin.getPlugin(SilverSkillz.class).getDataFolder(), "messages.yml");
 			if (!(messages.exists())) messages.createNewFile();
 			FileConfiguration messagesFile = YamlConfiguration.loadConfiguration(messages);
 		    return messagesFile;
@@ -61,15 +58,12 @@ public class SilverSkillz extends JavaPlugin {
 	}
 	
 	public static final void reloadMessagesFile() {
-		File messages = new File(JavaPlugin.getPlugin(SilverSkillz.class).getDataFolder().getPath(), "messages.yml");
-		if (!(messages.exists()))
-			try {
-				messages.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		FileConfiguration messagesFile = YamlConfiguration.loadConfiguration(messages);
+		FileConfiguration messagesFile = getMessagesFile();
 		
+		reloadMessagesFile(messagesFile);
+	}
+	
+	private static final void reloadMessagesFile(FileConfiguration messagesFile) {
 		if (!(messagesFile.isString("PluginName"))) {
 	    	messagesFile.set("PluginName", "SilverSkillz");
 	    }
@@ -119,11 +113,11 @@ public class SilverSkillz extends JavaPlugin {
 	    // Other
 	    
 	    if (!(messagesFile.isString("LevelUp"))) {
-	    	messagesFile.set("LevelUp", "$skill$ has leveled up!");
+	    	messagesFile.set("LevelUp", "%skill% has leveled up!");
 	    }
 	    
 	    if (!(messagesFile.isString("ExperienceGain"))) {
-	    	messagesFile.set("ExperienceGain", "+$exp$ $skill$ Experience");
+	    	messagesFile.set("ExperienceGain", "+%exp% %skill% Experience");
 	    }
 	    
 	    
@@ -236,14 +230,14 @@ public class SilverSkillz extends JavaPlugin {
 	    }
 	    
 	    if (!(skillInv.isString("PlayerStatistics"))) {
-	    	skillInv.set("PlayerStatistics", "$player$'s Statistics");
+	    	skillInv.set("PlayerStatistics", "%player%'s Statistics");
 	    }
 	    
 	    try {
-			messagesFile.save(messages);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	    	messagesFile.save(new File(JavaPlugin.getPlugin(SilverSkillz.class).getDataFolder(), "messages.yml"));
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	    }
 	}
 	
 	public void onEnable() {
@@ -262,36 +256,13 @@ public class SilverSkillz extends JavaPlugin {
 		new ResetProgressCommand(this);
 		new RemoveProgressCommand(this);
 		new SettingsCommand(this);
+		new ReloadConfigCommand(this);
 		
 		getLogger().info("Loading options...");
 		// Config Check
 		if (!(this.getConfig().isBoolean("DisplayMessages"))) {
 			this.getConfig().set("DisplayMessages", true);
 		}
-
-    if (!(this.getConfig().isList("DisabledCommands"))) {
-      this.getConfig().set("DisabledCommands", new ArrayList<String>());
-    }
-
-    // Disabled Commands
-    try {
-    	List<PluginCommand> commands = new ArrayList<>();
-    	
-    	this.getDescription().getCommands().forEach((name, info) -> {
-    		commands.add(getCommand(name));
-    	});
-    	
-    	for (PluginCommand c : commands) {
-	        for (String s : this.getConfig().getStringList("DisabledCommands")) {
-	          if (c.getName().equalsIgnoreCase(s) || c.getAliases().contains(s)) {
-	            c.setExecutor(null);
-	          }
-	        }
-    	}
-    } catch (Exception e) {
-      getLogger().info("Malformed Config");
-      e.printStackTrace();
-    }
 		
 		// Global Effects
 		new BukkitRunnable() {
@@ -319,7 +290,6 @@ public class SilverSkillz extends JavaPlugin {
 				}
 			}
 		}.runTaskTimer(this, 0, 4);
-		
 		this.saveConfig();
 		getLogger().info("Complete!");
 	}
