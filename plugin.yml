@@ -29,6 +29,11 @@ commands:
     description: Remove progress for each skill or one skill
     permission: silverskillz.command.removeprogress
     aliases: [removep, rprogress, lessprogress, lessprog, removeprog, rprog]
+  skreload:
+    usage: /skreload
+    description: Reload Configurations
+    permission: silverskillz.command.skreload
+    aliases: [ssreload, silverreloadm skr, ssr]
   
 permissions:
   silverskillz.*:
@@ -46,6 +51,7 @@ permissions:
       silverskillz.command.resetprogress: true
       silverskillz.command.settings: true
       silverskillz.command.removeprogress: true
+      silverskillz.command.skreload: true
   silverskillz.command.skill:
     default: op
     description: Access to /skill command
@@ -61,5 +67,8 @@ permissions:
   silverskilz.command.removeprogress:
     default: op
     description: Access to /removeprogress or /lessprogress
+  silverskillz.command.skreload:
+    default: op
+    description: Access to /skreload, which reloads configs
     
     
