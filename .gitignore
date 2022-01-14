@@ -6,3 +6,5 @@ bin/
 .replit
 .breakpoints
 /target/
+src/us/teaminceptus/silverskillz/commands/premium/License.java
+src/us/teaminceptus/silverskillz/commands/premium/PremiumUtils.java

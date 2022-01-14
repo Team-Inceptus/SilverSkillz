@@ -150,6 +150,7 @@ public enum Skill {
 	SMITHING("smithing", null, getModifier("smithing"), Material.IRON_AXE);
 
 	public static final double MAX_PROGRESS_VALUE = 1000000000;
+	private static final boolean PREMIUM = SilverSkillz.isPremium();
 
 	private final String name;
 	private final Statistic[] increases;
@@ -439,6 +440,17 @@ public enum Skill {
 			} else {
 				incompleteLore.add(ChatColor.YELLOW + SkillUtils.withSuffix(Double.parseDouble(df.format(p.getSkill(s).getProgress()))) + " / " + SkillUtils.withSuffix(Double.parseDouble(df.format(toMinimumProgress(s.isBasic(), (short)100)))));
 			}
+
+			if (PREMIUM) {
+				for (Ability a : Ability.values()) {
+					if (a.getSkill() == s && i == a.getLevelUnlocked()) {
+						completedLore.add(ChatColor.GREEN + "Ability: " + a.getName());
+						incompleteLore.add(" ");
+						incompleteLore.add(ChatColor.RED + "Ability: " + a.getName());
+					}
+				}
+			}
+			
 			if (s == COMBAT) {
 				completedLore.add(ChatColor.BLUE + "Level " + Short.toString(i) + " Total Damage Buff: " + ChatColor.GOLD + df.format((Math.pow(i, 1.9)) + i * 3.7));
 				incompleteLore.add(" ");

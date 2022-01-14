@@ -101,8 +101,12 @@ public class SilverPlayer {
 			settings.set("potion-effects", true);
 		}
 		
-		if (!(settings.isBoolean("potion-effects"))) {
-			settings.set("potion-effects", true);
+		if (!(settings.isBoolean("custom-messages"))) {
+			settings.set("custom-messages", true);
+		}
+
+		if (!(settings.isBoolean("abilities"))) {
+			settings.set("abilities", true);
 		}
 
 		// Other
@@ -252,4 +256,8 @@ public class SilverPlayer {
 		return new SkillInstance(skill, this);
 	}
 
+	public final boolean hasAbilities() throws IllegalStateException {
+		if (!(SilverSkillz.isPremium())) throw new IllegalStateException("Please buy the Premium Version to use this method");
+		return this.playerConfig.getConfigurationSection("settings").getBoolean("abilities");
+	}
 }

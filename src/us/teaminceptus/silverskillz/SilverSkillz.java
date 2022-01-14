@@ -31,8 +31,6 @@ import us.teaminceptus.silverskillz.skills.SkillUtils;
  */
 public class SilverSkillz extends JavaPlugin {
 	
-
-
 	/**
 	 * Send a message from SilverSkillz plugin
 	 * @param sender Sender to send it to
@@ -42,7 +40,6 @@ public class SilverSkillz extends JavaPlugin {
 		sender.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GRAY + "SilverSkillz" + ChatColor.DARK_GREEN + "] " + ChatColor.RED + msg);
 	}
 	
-
 	public static final FileConfiguration getMessagesFile() {
 		try {
 			File messages = new File(JavaPlugin.getPlugin(SilverSkillz.class).getDataFolder(), "messages.yml");
@@ -291,7 +288,44 @@ public class SilverSkillz extends JavaPlugin {
 			}
 		}.runTaskTimer(this, 0, 4);
 		this.saveConfig();
+		// Premium
+		try {
+			Class.forName("us.teaminceptus.silverskillz.premium.commands.PremiumCommands");
+
+			new us.teaminceptus.silverskillz.premium.License(); // Check if License Exists
+			if (us.teaminceptus.silverskillz.premium.PremiumUtils.isCracked()) {
+				getLogger().info("!! Cracked version detected, disabling; Please contact support if this is an error. !!");
+				Bukkit.getPluginManager().disablePlugin(this);
+				return;
+			}
+			// License Exists
+
+			PremiumCommands.register();
+			
+		} catch (Exception e) {
+			getLogger().info("Free version detected! Please consider purchasing the Premium Version on our spigot page!");
+		} catch (NoClassFoundDefError e) {
+			getLogger().info("!! Cracked version detected, disabling; Please contact support if this is an error. !!");
+			Bukkit.getPluginManager().disablePlugin(this);
+			return;
+		}
+		
 		getLogger().info("Complete!");
+	}
+
+	public static final boolean isPremium() {
+		try {
+			Class.forName("us.teaminceptus.silverskillz.premium.commands.PremiumCommands");
+
+			new us.teaminceptus.silverskillz.premium.License();
+			if (us.teaminceptus.silverskillz.premium.PremiumUtils.isCracked()) {
+				return false;
+			}
+		} catch (Exception e) {
+			return false;
+		} catch (NoClassFoundDefError e) {
+			return false;
+		}
 	}
 
 }

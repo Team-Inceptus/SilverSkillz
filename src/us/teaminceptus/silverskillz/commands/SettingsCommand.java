@@ -55,6 +55,17 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		
 		inv.setItem(10, messages);
 		inv.setItem(11, potionEffects);
+		inv.setItem(12, customMessages);
+
+		// Premium Settings
+		if (SilverSkillz.isPremium()) {
+			ItemStack abilities = new ItemStack((p.hasAbilities() ? Material.LIME_CONCRETE : Material.RED_CONCRETE));
+			ItemMeta aMeta = customMessages.getItemMeta();
+			aMeta.setDisplayName(ChatColor.YELLOW + "Abilities: " + (p.hasAbilities() ? ChatColor.GREEN + "On" : ChatColor.RED + "Off"));
+			abilities.setItemMeta(aMeta);
+
+			inv.setItem(13, abilities);
+		}
 
 		return inv;
 	}
@@ -63,6 +74,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
 		if (name.equalsIgnoreCase("skillmessages")) return "messages";
 		else if (name.equalsIgnoreCase("potieffects")) return "potion-effects";
 		else if (name.equalsIgnoreCase("usemessagesnames")) return "custom-messages";
+		else if (name.equalsIgnoreCase("abilities")) return "abilities";
 		else return null;
 	}
 
@@ -103,7 +115,7 @@ public class SettingsCommand implements CommandExecutor, Listener {
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (!(sender instanceof Player)) return true;
+		if (!(sender instanceof Player)) return false;
 
 		Player p = (Player) sender;
 

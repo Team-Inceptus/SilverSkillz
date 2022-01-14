@@ -52,6 +52,7 @@ permissions:
       silverskillz.command.settings: true
       silverskillz.command.removeprogress: true
       silverskillz.command.skreload: true
+      silverskillz.user: true
   silverskillz.command.skill:
     default: op
     description: Access to /skill command
@@ -70,5 +71,9 @@ permissions:
   silverskillz.command.skreload:
     default: op
     description: Access to /skreload, which reloads configs
-    
+  # User Commands
+  silverskillz.user.abilities:
+    description: Access to list available abilities unlocked through leveling up skills
+    default: true
+
     
