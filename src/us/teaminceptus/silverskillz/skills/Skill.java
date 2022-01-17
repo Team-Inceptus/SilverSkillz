@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import us.teaminceptus.silverskillz.SilverPlayer;
 import us.teaminceptus.silverskillz.SilverSkillz;
+import us.teaminceptus.silverskillz.premium.skills.Ability;
 
 /**
  * Enum containing skills for the plugin
@@ -180,7 +181,7 @@ public enum Skill {
 		if (s == TRAVELER) return;
 		if (!(JavaPlugin.getPlugin(SilverSkillz.class).getConfig().getBoolean("DisplayMessages"))) return;
 		if (!(p.canSeeSkillMessages())) return;
-		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + SilverSkillz.getMessagesFile().getString("ExperienceGain").replaceAll("%exp%", df.format(increaseBy).replaceAll("%skill%", s.getCapitalizedName())).replaceAll("%player%", p.getPlayer().getName()));
+		SkillUtils.sendActionBar(p.getOnlinePlayer(), ChatColor.GREEN + SilverSkillz.getMessagesFile().getString("ExperienceGain").replaceAll("%exp%", df.format(increaseBy)).replaceAll("%skill%", s.getCapitalizedName()).replaceAll("%player%", p.getPlayer().getName()));
 		
 		if (hasLeveled) {
 			Player pl = p.getOnlinePlayer();
