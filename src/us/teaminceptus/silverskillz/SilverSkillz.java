@@ -20,6 +20,7 @@ import us.teaminceptus.silverskillz.commands.RemoveProgressCommand;
 import us.teaminceptus.silverskillz.commands.ResetProgressCommand;
 import us.teaminceptus.silverskillz.commands.SettingsCommand;
 import us.teaminceptus.silverskillz.commands.SkillsCommand;
+import us.teaminceptus.silverskillz.premium.commands.PremiumCommands;
 import us.teaminceptus.silverskillz.skills.Skill;
 import us.teaminceptus.silverskillz.skills.SkillAdvancer;
 import us.teaminceptus.silverskillz.skills.SkillUtils;
@@ -304,7 +305,7 @@ public class SilverSkillz extends JavaPlugin {
 			
 		} catch (Exception e) {
 			getLogger().info("Free version detected! Please consider purchasing the Premium Version on our spigot page!");
-		} catch (NoClassFoundDefError e) {
+		} catch (NoClassDefFoundError e) {
 			getLogger().info("!! Cracked version detected, disabling; Please contact support if this is an error. !!");
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
@@ -321,9 +322,11 @@ public class SilverSkillz extends JavaPlugin {
 			if (us.teaminceptus.silverskillz.premium.PremiumUtils.isCracked()) {
 				return false;
 			}
+			
+			return true;
 		} catch (Exception e) {
 			return false;
-		} catch (NoClassFoundDefError e) {
+		} catch (NoClassDefFoundError e) {
 			return false;
 		}
 	}
