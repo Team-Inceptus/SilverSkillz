@@ -1,5 +1,16 @@
 package us.teaminceptus.silverskillz.premium.events;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+import us.teaminceptus.silverskillz.SilverPlayer;
+import us.teaminceptus.silverskillz.SilverSkillz;
+import us.teaminceptus.silverskillz.premium.skills.Ability;
+import us.teaminceptus.silverskillz.premium.skills.AbilityType;
+
 public class AbilityEvents implements Listener {
 
 	protected SilverSkillz plugin;
@@ -15,9 +26,12 @@ public class AbilityEvents implements Listener {
 		SilverPlayer sp = new SilverPlayer(p);
 		
 		for (Ability a : Ability.values()) {
-			if (a.getAction() == null) continue;
-			if (!(a.isUnlocked(sp))) continue;
-			if (e.getAction() != a.getAction()) continue;
+			
+			if (a.getType() != AbilityType.ACTION && a.getType() != AbilityType.ACTION_POTION_COOLDOWN) continue;
+			if (!(a.isUnlocked(sp))) return;
+			if (a.getAction() != e.getAction()) continue;
+			
+			
 			
 		}
 	}
