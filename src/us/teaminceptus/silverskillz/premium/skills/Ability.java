@@ -118,8 +118,8 @@ public enum Ability {
 					}, 20 * 90),
 	SUPER_SPONGE(12, Skill.AQUATICS, 45, ChatColor.YELLOW + "Super Sponge", Material.SPONGE,
 					new String[] {
-						"Water that comes near",
-						"you will cease to exist!"
+						"Water and Lava that come",
+						"near you will cease to exist!"
 					}, 20 * 30, 20 * 60),
 	
 	
@@ -269,15 +269,32 @@ public enum Ability {
 		
 		switch (this) {
 			case SUPER_SPONGE: {
+				World w = p.getWorld();
+				
 				new BukkitRunnable() {
 					int i = 0;
 					
 					public void run() {
-						
+						if (i >= this.durationTicks) {
+							cancel();
+							p.sendMessage(ChatColor.YELLOW + "Your ability has worn off!");
+						}
+
+						for (int x = -3; x++; x < 3) {
+							for (int y = -3; y++; y < 3) {
+								for (int z = -3; z++; z < 3) {
+									if (w.getBlockAt(x, y, z).getType() == Material.WATER || w.getBlockAt(x, y, z).getType() == Material.LAVA) {
+										w.getBlockAt(x, y, z).setType(Material.AIR);
+									}
+								}	
+							}	
+						}
+						i++;
 					}
 				}.runTaskTimer(plugin, 0, 1);
 				break;
 			}
+			
 			default:
 				break;
 		}
@@ -452,6 +469,7 @@ public enum Ability {
 	 */
 	public final void addPotionEffects(Player p) {
 		if (this.effects == null) return;
+		
 		p.addPotionEffects(Arrays.asList(this.effects));
 	}
 
