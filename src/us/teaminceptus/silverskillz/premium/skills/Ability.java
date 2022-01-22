@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
@@ -270,19 +271,20 @@ public enum Ability {
 		switch (this) {
 			case SUPER_SPONGE: {
 				World w = p.getWorld();
+				Ability a = this;
 				
 				new BukkitRunnable() {
 					int i = 0;
 					
 					public void run() {
-						if (i >= this.durationTicks) {
+						if (i >= a.durationTicks) {
 							cancel();
 							p.sendMessage(ChatColor.YELLOW + "Your ability has worn off!");
 						}
 
-						for (int x = -3; x++; x < 3) {
-							for (int y = -3; y++; y < 3) {
-								for (int z = -3; z++; z < 3) {
+						for (int x = -3; x < 3; x++) {
+							for (int y = -3; y < 3; y++) {
+								for (int z = -3; z < 3; z++) {
 									if (w.getBlockAt(x, y, z).getType() == Material.WATER || w.getBlockAt(x, y, z).getType() == Material.LAVA) {
 										w.getBlockAt(x, y, z).setType(Material.AIR);
 									}

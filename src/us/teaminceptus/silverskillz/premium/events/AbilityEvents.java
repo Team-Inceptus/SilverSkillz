@@ -1,10 +1,26 @@
 package us.teaminceptus.silverskillz.premium.events;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import us.teaminceptus.silverskillz.SilverPlayer;
 import us.teaminceptus.silverskillz.SilverSkillz;
@@ -42,7 +58,7 @@ public class AbilityEvents implements Listener {
 		Material.DIAMOND_ORE,
 		Material.DEEPSLATE_DIAMOND_ORE,
 		Material.EMERALD_ORE,
-		Material.DEEPSlATE_EMERALD_ORE,
+		Material.DEEPSLATE_EMERALD_ORE,
 		Material.GOLD_ORE,
 		Material.DEEPSLATE_GOLD_ORE,
 		Material.LAPIS_ORE,
@@ -68,12 +84,12 @@ public class AbilityEvents implements Listener {
 
 			if (timber || veinMiner) {
 				for (Block rel : getTypeRelatives(b)) {
-					drops.add(rel);
+					drops.addAll(rel.getDrops());
 					rel.setType(Material.AIR);
 				}
 			}
 
-			Map<Integer, ItemStack> leftovers = p.getInventory().addItem(drops);
+			Map<Integer, ItemStack> leftovers = p.getInventory().addItem(drops.toArray(new ItemStack[] {}));
 
 			for (ItemStack i : leftovers.values()) p.getWorld().dropItemNaturally(b.getLocation(), i);
 		} else {
@@ -90,8 +106,8 @@ public class AbilityEvents implements Listener {
 		
 		SilverPlayer sp = new SilverPlayer(p);	
 
-		if (Ability.POISONING.isUnlocked(sp)) {
-			en.addPotionEffect(new PotionEffect(PotionEffectType.POISON, ))
+		if (Ability.POISONOUS.isUnlocked(sp)) {
+			en.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 20 * 10, 1, true));
 		}
 	}
 	
