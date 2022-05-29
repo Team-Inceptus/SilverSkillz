@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"us.teaminceptus.silverskillz.api"},{"l":"us.teaminceptus.silverskillz.api.language"},{"l":"us.teaminceptus.silverskillz.api.skills"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"us.teaminceptus.silverskillz.api"},{"l":"us.teaminceptus.silverskillz.api.artifact"},{"l":"us.teaminceptus.silverskillz.api.language"},{"l":"us.teaminceptus.silverskillz.api.skills"}];updateSearchResults();
