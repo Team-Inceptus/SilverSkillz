@@ -132,9 +132,7 @@ public final class SilverPlayer {
 	 * Whether player has notificatons
 	 * @return true if notifications are on, else false
 	 */
-	public boolean hasNotifications() {
-		return pConfig.getConfigurationSection("settings").getBoolean("messages");
-	}
+	public boolean hasNotifications() { return pConfig.getConfigurationSection("settings").getBoolean("messages"); }
 	
 	/**
 	 * Get the instance of this player's configuration file
@@ -157,10 +155,8 @@ public final class SilverPlayer {
 	 * Whether player has abilities on
 	 * @return true if abilities on, else false
 	 */
-	public boolean hasAbilities() {
-		return pConfig.getConfigurationSection("settings").getBoolean("abilities");
-	}
-	
+	public boolean hasAbilities() { return pConfig.getConfigurationSection("settings").getBoolean("abilities"); }
+
 	/**
 	 * Get a skill instance for this player
 	 * @param skill Skill to get instance from

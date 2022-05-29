@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import us.teaminceptus.silverskillz.api.SilverConfig;
 import us.teaminceptus.silverskillz.api.SilverPlayer;
@@ -198,12 +199,13 @@ public final class SkillInstance {
 
 		if (hasLeveled) {
 			Player pl = p.getOnlinePlayer();
-			pl.sendTitle(String.format(SilverConfig.getMessage("response.level_up"), s.getCapitalizedName()), "", 5, 100, 10);
+			pl.sendTitle(String.format(SilverConfig.getConstant("constants.skill.level"), p.getSkill(s).getLevel() + 1), String.format(SilverConfig.getConstant("response.level_up"), s.getCapitalizedName()),  5, 100, 10);
+			pl.playSound(pl.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 3F, 1F);
 		}
 	}
 
 	private static void sendActionBar(Player p, final String message) {
-		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
 	}
 	
 	/**

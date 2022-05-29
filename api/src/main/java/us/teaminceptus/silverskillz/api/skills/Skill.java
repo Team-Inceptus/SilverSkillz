@@ -4,6 +4,7 @@ import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.Inventory;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import us.teaminceptus.silverskillz.api.SilverConfig;
 import us.teaminceptus.silverskillz.api.SilverPlayer;
+import us.teaminceptus.silverskillz.api.artifact.Artifact;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -147,6 +149,7 @@ public enum Skill {
 	 * Max amount of Progress for a Player
 	 */
 	public static final double MAX_PROGRESS_VALUE = 1000000000;
+	private static final String SP = " ";
 
 	private final String name;
 	private final Statistic[] increases;
@@ -169,9 +172,12 @@ public enum Skill {
     
     public final String getCapitalizedDefaultName() {
 	    StringBuilder s = new StringBuilder();
-	    for (String piece : getDefaultName().split("\\s")) {
-		    s.append(WordUtils.capitalizeFully(piece)).append("\\s");
-	    }
+		String[] arr = getDefaultName().split("\\s");
+		for (int i = 0; i < arr.length; i++) {
+			String piece = arr[i];
+			if (i == arr.length - 1) s.append(WordUtils.capitalizeFully(piece));
+			else s.append(WordUtils.capitalizeFully(piece)).append("\\s");
+		}
 	    return s.toString();
     }
 	
@@ -225,11 +231,13 @@ public enum Skill {
 		ItemStack arrowForward = new ItemStack(Material.ARROW);
 		ItemMeta forwardMeta = arrowForward.getItemMeta();
 		forwardMeta.setDisplayName(SilverConfig.getConstant("constants.gui.next_page"));
+		forwardMeta.setLocalizedName("forward");
 		arrowForward.setItemMeta(forwardMeta);
 		
 		ItemStack arrowBack = new ItemStack(Material.ARROW);
 		ItemMeta backMeta = arrowForward.getItemMeta();
 		backMeta.setDisplayName(SilverConfig.getConstant("constants.gui.previous_page"));
+		backMeta.setLocalizedName("back");
 		arrowBack.setItemMeta(backMeta);
 		
 		ItemStack menuBack = new ItemStack(Material.BEACON);
@@ -237,7 +245,7 @@ public enum Skill {
 		menuMeta.setDisplayName(SilverConfig.getConstant("constants.gui.back"));
 		menuBack.setItemMeta(menuMeta);
 		// First Page
-		Inventory firstPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill");
+		Inventory firstPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + "Skill");
 		
 		firstPage.setItem(9, getIconAsStack());
 		firstPage.setItem(4, headInfo);
@@ -267,7 +275,7 @@ public enum Skill {
 		
 		pages.put(0, firstPage);
 		// Second Page
-		Inventory secondPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 2");
+		Inventory secondPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + "Skill - " + ChatColor.DARK_AQUA + SilverConfig.getConstant("constants.page") + " 2");
 		
 		secondPage.setItem(9, getIconAsStack());
 		secondPage.setItem(4, headInfo);
@@ -297,7 +305,7 @@ public enum Skill {
 		
 		pages.put(1, secondPage);
 		// Third Page
-		Inventory thirdPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 3");
+		Inventory thirdPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + "Skill - " + ChatColor.DARK_AQUA + SilverConfig.getConstant("constants.page") + " 3");
 		
 		thirdPage.setItem(9, getIconAsStack());
 		thirdPage.setItem(4, headInfo);
@@ -328,7 +336,7 @@ public enum Skill {
 		pages.put(2, thirdPage);
 		
 		// Fourth Page
-		Inventory fourthPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 4");
+		Inventory fourthPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + "Skill - " + ChatColor.DARK_AQUA + SilverConfig.getConstant("constants.page") + " 4");
 		
 		fourthPage.setItem(9, getIconAsStack());
 		fourthPage.setItem(4, headInfo);
@@ -358,7 +366,7 @@ public enum Skill {
 		
 		pages.put(3, fourthPage);
 		// Fifth Page
-		Inventory fifthPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + " Skill - Page 5");
+		Inventory fifthPage = SkillUtils.generateGUI(54, ChatColor.AQUA + this.getCapitalizedName() + "Skill - " + ChatColor.DARK_AQUA + SilverConfig.getConstant("constants.page") + " 5");
 		
 		fifthPage.setItem(9, getIconAsStack());
 		fifthPage.setItem(4, headInfo);
@@ -420,37 +428,35 @@ public enum Skill {
 			if (i != 100) incompleteLore.add(ChatColor.YELLOW + SkillUtils.withSuffix(Double.parseDouble(df.format(p.getSkill(s).getProgress()))) + " / " + SkillUtils.withSuffix(Double.parseDouble(df.format(toMinimumProgress(s.isBasic(), nextLevel)))));
 			else incompleteLore.add(ChatColor.YELLOW + SkillUtils.withSuffix(Double.parseDouble(df.format(p.getSkill(s).getProgress()))) + " / " + SkillUtils.withSuffix(Double.parseDouble(df.format(toMinimumProgress(s.isBasic(), 100)))));
 
-			for (Ability a : Ability.values()) {
-				if (a.getSkill() == s && i == a.getLevelUnlocked()) {
-					completedLore.add(String.format(SilverConfig.getConstant("skills.gui.ability"), ChatColor.GREEN, a.getName()));
-					incompleteLore.add(" ");
-					incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.ability"), ChatColor.RED, a.getName()));
-				}
-			}
-
 			switch (s) {
 				case COMBAT -> {
-					completedLore.add(String.format(SilverConfig.getConstant("skills.gui.combat.buff"), ChatColor.BLUE, i, df.format((Math.pow(i, 1.9)) + i * 3.7)));
-					incompleteLore.add(" ");
-					incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.combat.buff"), ChatColor.AQUA, i, df.format((Math.pow(i, 1.9)) + i * 3.7)));
+					completedLore.add(String.format(SilverConfig.getConstant("skills.gui.combat.buff"), "" + ChatColor.BLUE, i, df.format((Math.pow(i, 1.9)) + i * 3.7)));
+					incompleteLore.add(SP);
+					incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.combat.buff"), "" + ChatColor.AQUA, i, df.format((Math.pow(i, 1.9)) + i * 3.7)));
 				}
 				case FARMING -> {
 					if (i % 20 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.farming.drops"), ChatColor.GOLD));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.farming.drops"), ChatColor.YELLOW));
+					}
+
+					if (i % 3 == 0) {
+						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.farming.damage"), ChatColor.RED));
+						if (!(incompleteLore.contains(SP))) incompleteLore.add(SP);
+						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.farming.damage"), ChatColor.DARK_RED));
 					}
 				}
 				case MINING -> {
 					if (i % 5 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.mining.fortune"), ChatColor.AQUA));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.mining.fortune"), ChatColor.DARK_AQUA));
 					}
 				}
 				case BREWER -> {
 					completedLore.add(String.format(SilverConfig.getConstant("skills.gui.brewer.time"), ChatColor.LIGHT_PURPLE));
-					incompleteLore.add(" ");
+					incompleteLore.add(SP);
 					incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.brewer.time"), ChatColor.DARK_PURPLE));
 				}
 				case HUSBANDRY -> {
@@ -461,97 +467,136 @@ public enum Skill {
 						default -> "IV";
 					};
 
-					completedLore.add(String.format(SilverConfig.getConstant("skills.gui.husbandry.hero"), ChatColor.GREEN, id));
-					incompleteLore.add(" ");
-					incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.husbandry.hero"), ChatColor.DARK_GREEN, id));
+
+					switch (i) {
+						case 25, 50, 75, 100 -> {
+							completedLore.add(String.format(SilverConfig.getConstant("skills.gui.husbandry.hero"), ChatColor.GREEN, id));
+							incompleteLore.add(SP);
+							incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.husbandry.hero"), ChatColor.DARK_GREEN, id));
+
+							completedLore.add(String.format(SilverConfig.getConstant("skills.gui.husbandry.jump"), ChatColor.GREEN, id));
+							incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.husbandry.jump"), ChatColor.DARK_GREEN, id));
+						}
+					}
+
 				}
 				case AQUATICS -> {
 					if (i == 50) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.aquatics.breathing"), ChatColor.AQUA));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.aquatics.breathing"), ChatColor.DARK_AQUA));
+					}
+
+					String id = switch (i) {
+						case 30 -> "I";
+						case 60 -> "II";
+						default -> "III";
+					};
+
+					if (i % 30 == 0) {
+						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.aquatics.dolphin"), ChatColor.BLUE, id));
+						if (!(incompleteLore.contains(SP))) incompleteLore.add(SP);
+						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.aquatics.dolphin"), ChatColor.DARK_BLUE, id));
 					}
 				}
 				case CLEANER -> {
+					if (i % 7 == 0) {
+						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.cleaner.undead"), ChatColor.DARK_RED));
+						incompleteLore.add(SP);
+						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.cleaner.unbreaking"), ChatColor.DARK_AQUA));
+					}
+
 					if (i % 10 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.cleaner.unbreaking"), ChatColor.BLUE));
-						incompleteLore.add(" ");
+						if (!(incompleteLore.contains(SP)))incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.cleaner.unbreaking"), ChatColor.DARK_AQUA));
 					}
 				}
 				case ENCHANTER -> {
 					if (i % 20 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.enchanter.level"), ChatColor.LIGHT_PURPLE));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.enchanter.level"), ChatColor.DARK_PURPLE));
 					}
 
 					if (i % 5 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.enchanter.offer"), ChatColor.AQUA));
-						if (!(incompleteLore.contains(" "))) incompleteLore.add(" ");
+						if (!(incompleteLore.contains(SP))) incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.enchanter.offer"), ChatColor.BLUE));
 					}
 				}
 				case ADVANCER -> {
 					if (i % 5 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.advancer.loot"), ChatColor.YELLOW));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.advancer.loot"), ChatColor.GOLD));
 					}
 				}
 				case SMITHING -> {
 					if (i == 30) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.smithing.insta"), ChatColor.LIGHT_PURPLE));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.smithing.insta"), ChatColor.DARK_PURPLE));
 					}
 
 					if (i % 4 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.smithing.resistance"), ChatColor.GREEN));
-						if (!(incompleteLore.contains(" "))) incompleteLore.add(" ");
+						if (!(incompleteLore.contains(SP))) incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.smithing.resistance"), ChatColor.DARK_GREEN));
 					}
 				}
 				case ARCHERY -> {
 					if (i % 5 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.archery.velocity"), ChatColor.YELLOW));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.archery.velocity"), ChatColor.GOLD));
 					}
 
 					completedLore.add(SilverConfig.getConstant("skills.gui.archery.damage"));
-					if (!(incompleteLore.contains(" "))) incompleteLore.add(" ");
+					if (!(incompleteLore.contains(SP))) incompleteLore.add(SP);
 					incompleteLore.add(SilverConfig.getConstant("skills.gui.archery.damage"));
 				}
 				case TRAVELER -> {
 					if (i % 10 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.traveler.saturation"), ChatColor.WHITE));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.traveler.saturation"), ChatColor.GRAY));
+					}
+
+					if (i % 15 == 0) {
+						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.traveler.speed"), ChatColor.AQUA));
+						if (!(incompleteLore.contains(SP))) incompleteLore.add(SP);
+						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.traveler.speed"), ChatColor.YELLOW));
 					}
 				}
 				case BUILDER -> {
 					if (i % 5 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.builder.knockback"), ChatColor.RED));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.builder.knockback"), ChatColor.DARK_RED));
 					}
 				}
 				case COLLECTOR -> {
 					if (i % 2 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.collector.statistic"), ChatColor.GREEN));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.collector.statistic"), ChatColor.DARK_GREEN));
 					}
 				}
 				case SOCIAL -> {
 					if (i % 6 == 0) {
 						completedLore.add(String.format(SilverConfig.getConstant("skills.gui.social.ignore"), ChatColor.RED));
-						incompleteLore.add(" ");
+						incompleteLore.add(SP);
 						incompleteLore.add(String.format(SilverConfig.getConstant("skills.gui.social.ignore"), ChatColor.DARK_RED));
 					}
 				}
 			}
+
+
+			for (Artifact a : Artifact.values())
+				if (a.getSkill() == s && i == a.getLevelUnlocked()) {
+					completedLore.add(String.format(SilverConfig.getConstant("skills.gui.artifact"), a.getInfoColor(), a.getRecipe().getResult().getItemMeta().getDisplayName()));
+				}
 
 			ItemStack stack = new ItemStack(m);
 			ItemMeta stackMeta = stack.getItemMeta();
@@ -559,6 +604,7 @@ public enum Skill {
 			stackMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
 			if (comp) stackMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
 			stackMeta.setLore(comp ? completedLore : incompleteLore);
+			stackMeta.setLocalizedName(i + "");
 			stack.setItemMeta(stackMeta);
 			
 			icons.put(i - 1, stack);
@@ -630,7 +676,7 @@ public enum Skill {
 	 * @return Skill name
 	 */
 	public final String getName() {
-		return SilverConfig.getConstant("skill." + getDefaultName().toLowerCase());
+		return SilverConfig.getConstant("skills." + getDefaultName().toLowerCase());
 	}
 	
 	/**
@@ -646,8 +692,11 @@ public enum Skill {
 	 */
 	public final String getCapitalizedName() {
 		StringBuilder s = new StringBuilder();
-		for (String piece : getName().split("\\s")) {
-			s.append(WordUtils.capitalizeFully(piece)).append("\\s");
+		String[] arr = getName().split("\\s");
+		for (int i = 0; i < arr.length; i++) {
+			String piece = arr[i];
+			if (i == arr.length - 1) s.append(WordUtils.capitalizeFully(piece));
+			else s.append(WordUtils.capitalizeFully(piece)).append("\\s");
 		}
 		return s.toString();
 	}
@@ -658,10 +707,12 @@ public enum Skill {
 	 * Match the minimum combat experience for this entity type
 	 * @param t Entity Type to use
 	 * @return A double containing the minimum amount of combat experience a player will receive when killed
+	 * @throws IllegalArgumentException if EntityType is not valid
 	 */
-	public static double matchMinCombatExperience(EntityType t) {
-		LivingEntity entity = (LivingEntity) Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), 0, 0, 0), t);
-		double defaultHP = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+	public static double matchMinCombatExperience(EntityType t) throws IllegalArgumentException {
+		Entity entity = Bukkit.getWorld("world").spawn(new Location(Bukkit.getWorld("world"), 0, 0, 0), t.getEntityClass());
+		if (!(entity instanceof LivingEntity len)) throw new IllegalArgumentException("Invalid EntityType");
+		double defaultHP = len.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
 		entity.remove();
 		return defaultHP / 5;
 	}
@@ -677,17 +728,24 @@ public enum Skill {
 	}
 	
 	/**
-	 * A static method to convert names from getName() to skill
+	 * Matches a Skill by its messages name (from language) or default name.
 	 * @param name Skill name
-	 * @return Skill enum from name, may be null
+	 * @return Skill found, or null if not found
 	 */
 	public static Skill matchSkill(String name) {
-		for (Skill s : Skill.values()) {
-			if (s.getName().equalsIgnoreCase(name)) {
-				return s;
-			}
-		}
-		
+		if (name == null) return null;
+		for (Skill s : values()) if (s.getName().equalsIgnoreCase(name) || s.getDefaultName().equalsIgnoreCase(name)) return s;
+		return null;
+	}
+
+	/**
+	 * Matches a Skill by its Icon.
+	 * @param m Icon to match
+	 * @return Matched skill, or null if not found
+	 */
+	public static Skill matchSkill(Material m) {
+		if (m == null) return null;
+		for (Skill s : values()) if (s.getIcon() == m) return s;
 		return null;
 	}
 	
