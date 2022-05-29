@@ -18,7 +18,19 @@ public enum Language {
     /**
      * Represents English
      */
-    ENGLISH("")
+    ENGLISH(""),
+    /**
+     * Represents Spanish / Español
+     */
+    SPANISH("_es"),
+    /**
+     * Represents German / Deutsch
+     */
+    GERMAN("_de"),
+    /**
+     * Represents French / Français
+     */
+    FRENCH("_fr")
     ;
 
     private final String id;
