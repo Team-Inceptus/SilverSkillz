@@ -21,7 +21,11 @@ permissions:
       silverskillz.command.settings: true
       silverskillz.command.removeprogress: true
       silverskillz.command.skreload: true
+      silverskillz.command.setprogress: true
       silverskillz.user: true
+  silverskillz.command.setprogress:
+    default: op
+    description: Access to /setprogress and /setlevel
   silverskillz.command.skill:
     default: true
     description: Access to /skill command
@@ -33,10 +37,10 @@ permissions:
     description: Access to /resetprogress
   silverskillz.command.settings:
     default: true
-    description: Access to player's personal settings (/settings or /playersettings)
+    description: Access to player's personal settings (/spsettings or /spsett)
   silverskilz.command.removeprogress:
     default: op
-    description: Access to /removeprogress or /lessprogress
+    description: Access to /removeprogress
   silverskillz.command.skreload:
     default: op
     description: Access to /skreload, which reloads configs
