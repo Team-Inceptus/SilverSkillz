@@ -3,10 +3,7 @@ package us.teaminceptus.silverskillz.skills;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Statistic;
-import org.bukkit.Tag;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
@@ -19,7 +16,6 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
@@ -73,7 +69,6 @@ public final class SkillAdvancer implements Listener {
 		
 		new BukkitRunnable() {
 			public void run() {
-
 				int secsAdded = 0;
 				
 				for (int i = 0; i < sp.getSkill(Skill.BREWER).getLevel(); i++) secsAdded += 5;
@@ -121,7 +116,7 @@ public final class SkillAdvancer implements Listener {
 		Player p = e.getPlayer();
 		SilverPlayer sp = new SilverPlayer(p);
 
-		int cleanerPercentage = (int) Math.floor(sp.getSkill(Skill.CLEANER).getLevel() / 10);	
+		int cleanerPercentage = (int) Math.floor(sp.getSkill(Skill.CLEANER).getLevelDouble() / 10);	
 
 		if (r.nextInt(100) < cleanerPercentage) {
 			e.setCancelled(true);
@@ -137,8 +132,8 @@ public final class SkillAdvancer implements Listener {
 		SilverPlayer sp = new SilverPlayer(p);
 		if (e.getOffers().length == 0) return;
 		
-		int plusLevel = (int) Math.floor((double) sp.getSkill(Skill.ENCHANTER).getLevel() / 20);
-		double costRemove = Math.floor((double) sp.getSkill(Skill.ENCHANTER).getLevel() / 5) * 0.05;
+		int plusLevel = (int) Math.floor(sp.getSkill(Skill.ENCHANTER).getLevelDouble() / 20);
+		double costRemove = Math.floor(sp.getSkill(Skill.ENCHANTER).getLevelDouble() / 5) * 0.05;
 		
 		for (EnchantmentOffer offer : e.getOffers()) {
 			if (offer == null) continue;
@@ -150,8 +145,7 @@ public final class SkillAdvancer implements Listener {
 			
 			offers.put(p.getUniqueId(), e.getOffers());
 		}
-		
-		return;
+
 	}
 	
 	// Increment Enchanting Skill & Enchanting Effect
@@ -188,7 +182,7 @@ public final class SkillAdvancer implements Listener {
 		if (!(e.getPlayer() instanceof Player p)) return;
 		
 		if (e.getInventory() instanceof EnchantingInventory) {
-			if (offers.containsKey(p.getUniqueId())) offers.remove(p.getUniqueId());
+			offers.remove(p.getUniqueId());
 		}
 	}
 
@@ -221,11 +215,10 @@ public final class SkillAdvancer implements Listener {
 		if (!(e.getTarget() instanceof Player p)) return;
 		SilverPlayer sp = new SilverPlayer(p);
 
-		int chance = (int) (100 * (Math.floor(sp.getSkill(Skill.SOCIAL).getLevel() / 6) * 0.05));
+		int chance = (int) (100 * (Math.floor(sp.getSkill(Skill.SOCIAL).getLevelDouble() / 6) * 0.05));
 
 		if (r.nextInt(100) < chance) {
 			e.setTarget(null);
-			return;
 		}
 	}
 
@@ -234,7 +227,7 @@ public final class SkillAdvancer implements Listener {
 		Player p = e.getPlayer();
 		SilverPlayer sp = new SilverPlayer(p);
 
-		int increase = (int) Math.floor(sp.getSkill(Skill.COLLECTOR).getLevel() / 20);
+		int increase = (int) Math.floor(sp.getSkill(Skill.COLLECTOR).getLevelDouble() / 20);
 		if (increase != 0) { 
 			for (int i = 0; i < increase; i++) {
 				if (e.getMaterial() != null) {
@@ -250,15 +243,13 @@ public final class SkillAdvancer implements Listener {
 
 	@EventHandler
 	public void skillEffect(LootGenerateEvent e) {
-		if (!(e.getEntity() instanceof Player)) return;
+		if (!(e.getEntity() instanceof Player p)) return;
 		if (e.isPlugin()) return;
-		Player p = (Player) e.getEntity();
 		SilverPlayer sp = new SilverPlayer(p);
 
-		double luck = (1 + (Math.floor(sp.getSkill(Skill.ADVANCER).getLevel() / 5) * 0.05)) * sp.getOnlinePlayer().getAttribute(Attribute.GENERIC_LUCK).getValue();
+		double luck = 1 + Math.floor((sp.getSkill(Skill.ADVANCER).getLevelDouble() / 5) * 0.05) * sp.getOnlinePlayer().getAttribute(Attribute.GENERIC_LUCK).getValue();
 
-		List<ItemStack> loot = new ArrayList<>();
-		loot.addAll(e.getLoot());
+		List<ItemStack> loot = new ArrayList<>(e.getLoot());
 
 		for (ItemStack i : generateItems(luck)) {
 			if (loot.size() > e.getInventoryHolder().getInventory().getSize()) break;
@@ -266,27 +257,39 @@ public final class SkillAdvancer implements Listener {
 		}
 
 		e.setLoot(loot);
-		return;
 	}
 
 	@EventHandler
 	public void skillEffect(EntityDamageByEntityEvent e) {
 		if (e.getEntity() == null) return;
-		if (e.getCause() != DamageCause.PROJECTILE) return;
+		if (!(e.getEntity() instanceof LivingEntity en)) return;
 		if (!(e.getDamager() instanceof Player p)) return;
 		SilverPlayer sp = new SilverPlayer(p);
 
-		int damageIncrease = (int) (sp.getSkill(Skill.ARCHERY).getLevel() * 5);
+		switch (e.getCause()) {
+			case PROJECTILE -> {
+				int damageIncrease = sp.getSkill(Skill.ARCHERY).getLevel() * 5;
+				e.setDamage(e.getDamage() + damageIncrease);
+			}
+			case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK -> {
+				if (en.getCategory() == EntityCategory.UNDEAD) {
+					double multiplier = 1 + (Math.floor(sp.getSkill(Skill.CLEANER).getLevelDouble() / 7) * 0.15);
+					e.setDamage(e.getDamage() * multiplier);
+				}
 
-		e.setDamage(e.getFinalDamage() + damageIncrease);
+				if (p.getEquipment().getItemInMainHand().getType().name().endsWith("HOE")) {
+					double damageIncrease = Math.floor(sp.getSkill(Skill.FARMING).getLevelDouble() / 3) * 3;
+					e.setDamage(e.getDamage() + damageIncrease);
+				}
+			}
+		}
 	}
 
 	@EventHandler
 	public void incrementSkill(ProjectileHitEvent e) {
-		if (!(e.getEntity().getShooter() instanceof Player)) return;
+		if (!(e.getEntity().getShooter() instanceof Player p)) return;
 		if (e.getHitEntity() == null) return;
 
-		Player p = (Player) e.getEntity().getShooter();
 		SilverPlayer sp = new SilverPlayer(p);
 		
 		try {
@@ -303,9 +306,7 @@ public final class SkillAdvancer implements Listener {
 					sp.getSkill(Skill.ARCHERY).addProgress(experience);
 				}
 			}
-			return;
-		} catch (IllegalArgumentException err) {
-			return;
+		} catch (IllegalArgumentException ignored) {
 		}
 	}
 
@@ -315,7 +316,7 @@ public final class SkillAdvancer implements Listener {
 		if (e.getItem() != null) return;
 		SilverPlayer sp = new SilverPlayer(p);
 		
-		double chance = Math.floor(sp.getSkill(Skill.TRAVELER).getLevel() / 10) * 10;
+		double chance = Math.floor(sp.getSkill(Skill.TRAVELER).getLevelDouble() / 10) * 10;
 		
 		if (r.nextInt(100) < chance) {
 			e.setCancelled(true);
@@ -325,17 +326,15 @@ public final class SkillAdvancer implements Listener {
 	@EventHandler
 	public void skillEffect(ProjectileLaunchEvent e) {
 		if (e.getEntity().getShooter() == null) return;
-		if (!(e.getEntity().getShooter() instanceof Player)) return;
+		if (!(e.getEntity().getShooter() instanceof Player p)) return;
 
-		Player p = (Player) e.getEntity().getShooter();
 		SilverPlayer sp = new SilverPlayer(p);
 
-		double increase = 1 + (Math.floor(sp.getSkill(Skill.ARCHERY).getLevel() / 5) * 0.05);
+		double increase = 1 + (Math.floor(sp.getSkill(Skill.ARCHERY).getLevelDouble() / 5) * 0.05);
 		Vector newVelocity = e.getEntity().getVelocity().multiply(increase);
 
 		e.getEntity().setVelocity(newVelocity);
-		return;		
- 	}
+	}
 
 	@EventHandler
 	public void incrementSkill(FurnaceExtractEvent e) {
@@ -385,7 +384,7 @@ public final class SkillAdvancer implements Listener {
 				sp.getSkill(Skill.BREWER).addProgress(4.2);
 			}
 			
-			int farmingDuplicator = (int) Math.floor(sp.getSkill(Skill.FARMING).getLevel() / 5);
+			int farmingDuplicator = (int) Math.floor(sp.getSkill(Skill.FARMING).getLevelDouble() / 5);
 			
 			if (farmingDuplicator != 0) {
 				for (int i = farmingDuplicator; i > 0; i--) {
@@ -405,7 +404,7 @@ public final class SkillAdvancer implements Listener {
 				|| b.getType() == Material.NETHER_QUARTZ_ORE || b.getType() == Material.NETHER_GOLD_ORE) {
 				
 				if (sp.getSkill(Skill.MINING).getLevel() % 5 == 0) {
-					double oreChance = (sp.getSkill(Skill.MINING).getLevel() / 25) * 100;
+					double oreChance = (sp.getSkill(Skill.MINING).getLevelDouble() / 25) * 100;
 					
 					if (r.nextInt(100) < oreChance && oreChance <= 100) {
 						for (ItemStack it : b.getDrops()) {
@@ -421,16 +420,12 @@ public final class SkillAdvancer implements Listener {
 			
 		}
 	}
-	
-	
 
-	
 	@EventHandler
 	public void incrementSkill(EntityDamageByEntityEvent e) {
-		if (!(e.getDamager() instanceof Player)) return;
+		if (!(e.getDamager() instanceof Player p)) return;
 		if (((LivingEntity) e.getEntity()).getHealth() - e.getDamage() > 0) return;
-		
-		Player p = (Player) e.getDamager();
+
 		SilverPlayer sp = new SilverPlayer(p);
 		
 		double add = r.nextInt(5) + Skill.matchMinCombatExperience((LivingEntity) e.getEntity());
@@ -451,12 +446,13 @@ public final class SkillAdvancer implements Listener {
 
 		if (hasLeveled) {
 			Player pl = p.getOnlinePlayer();
-			pl.sendTitle(String.format(SilverConfig.getMessage("response.level_up"), s.getCapitalizedName()), "", 5, 100, 10);
+			pl.sendTitle(String.format(SilverConfig.getConstant("constants.skill.level"), p.getSkill(s).getLevel() + 1), String.format(SilverConfig.getConstant("response.level_up"), s.getCapitalizedName()),  5, 100, 10);
+			pl.playSound(pl.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 3F, 1F);
 		}
 	}
 
 	private static void sendActionBar(Player p, final String message) {
-		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
 	}
 
 	private static final DecimalFormat df = new DecimalFormat("###.#");
