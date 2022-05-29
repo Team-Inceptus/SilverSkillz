@@ -8,10 +8,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import us.teaminceptus.silverskillz.api.SilverConfig;
 import us.teaminceptus.silverskillz.api.SilverPlayer;
 import us.teaminceptus.silverskillz.api.skills.Skill;
 
@@ -20,15 +26,21 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.UUID;
+
+import static us.teaminceptus.silverskillz.api.skills.SkillUtils.getInventoryPlaceholder;
 
 public class InternalUtil implements Listener {
 
     SilverSkillz plugin;
+    final String inventoryName;
 
     InternalUtil(SilverSkillz plugin) {
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
+
+        this.inventoryName = SilverConfig.getConstant("plugin.prefix");
     }
 
 
@@ -53,6 +65,53 @@ public class InternalUtil implements Listener {
         } else {
             e.setDamage(e.getFinalDamage() + (Math.pow(level, 1.9)) + level * 3.7);
         }
+    }
+
+    @EventHandler
+    public void onClick(InventoryClickEvent e) {
+        InventoryView view = e.getView();
+        Player p = (Player) e.getWhoClicked();
+        SilverPlayer sp = new SilverPlayer(p);
+        if (e.getCurrentItem() == null) return;
+        ItemStack item = e.getCurrentItem();
+        if (!(item.hasItemMeta())) return;
+        ItemMeta meta = item.getItemMeta();
+
+        if (!(view.getTitle().contains(inventoryName))) return;
+        e.setCancelled(true);
+
+        Inventory inv = view.getTopInventory();
+
+        switch (item.getType()) {
+            case ARROW -> {
+                Skill currentSkill = Skill.matchSkill(inv.getItem(9).getType());
+                int currentPage = (int) Math.floor((double) Integer.parseInt(inv.getItem(10).getItemMeta().getLocalizedName()) / 20D);
+                Map<Integer, Inventory> invs = currentSkill.generateInventories(sp);
+
+                switch (meta.getLocalizedName().toLowerCase()) {
+                    case "forward" -> p.openInventory(invs.get(currentPage + 1));
+                    case "back" -> p.openInventory(invs.get(currentPage - 1));
+                }
+                return;
+            }
+            case BEACON -> {
+                p.openInventory(Skill.getMenu());
+                return;
+            }
+        }
+
+        for (Skill s : Skill.values()) {
+            if (e.getCurrentItem().getType() == s.getIcon()) {
+                p.openInventory(s.generateInventories(sp).get(0));
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onClick(InventoryMoveItemEvent e) {
+        if (!(e.getSource().contains(getInventoryPlaceholder()))) return;
+        e.setCancelled(true);
     }
 
     protected static String withSuffix(double count) {

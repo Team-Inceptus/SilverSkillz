@@ -16,6 +16,7 @@ import us.teaminceptus.silverskillz.api.SilverPlayer;
 import us.teaminceptus.silverskillz.api.language.Language;
 import us.teaminceptus.silverskillz.api.skills.Skill;
 import us.teaminceptus.silverskillz.commands.*;
+import us.teaminceptus.silverskillz.skills.SkillAdvancer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,24 +34,34 @@ public final class SilverSkillz extends JavaPlugin implements SilverConfig, List
 
 	private BukkitCommandHandler handler;
 
+	private String prefix;
+
 	private void setupLamp() {
 		this.handler = BukkitCommandHandler.create(this);
 
-		handler.registerValueResolver(Skill.class, ctx -> Skill.valueOf(ctx.popForParameter().toUpperCase()));
+		handler.registerValueResolver(Skill.class, ctx -> {
+			try {
+				return Skill.valueOf(ctx.popForParameter().toUpperCase());
+			} catch (IllegalArgumentException e) {
+				throw new CommandErrorException(prefix + "Skill not Found");
+			}
+		});
 		handler.getAutoCompleter().registerParameterSuggestions(Skill.class, SuggestionProvider.of(toStringList(s -> s.name().toLowerCase(), Skill.values())));
 
 		handler.registerValueResolver(SilverPlayer.class, ctx -> {
 			UUID uid = InternalUtil.nameToUUID(ctx.popForParameter());
 			if (uid == null) throw new CommandErrorException("Player does not exist");
-			if (Bukkit.getOfflinePlayer(uid) == null) throw new CommandErrorException("Player does not exist");
+			if (Bukkit.getOfflinePlayer(uid) == null) throw new CommandErrorException(prefix + "Player does not exist");
 			return new SilverPlayer(Bukkit.getOfflinePlayer(uid));
 		});
 		handler.getAutoCompleter().registerParameterSuggestions(SilverPlayer.class, SuggestionProvider.of(toStringList(OfflinePlayer::getName, Bukkit.getOfflinePlayers())));
 
 		new Settings(this);
+		Settings.onEnable();
 		new Progress(this);
 		new Skills(this);
 		new ReloadConfig(this);
+		new Level(this);
 
 		handler.registerBrigadier();
 	}
@@ -77,11 +88,14 @@ public final class SilverSkillz extends JavaPlugin implements SilverConfig, List
 
 		getLogger().info("Loading Languages...");
 		loadLanguages();
+		prefix = SilverConfig.getConstant("plugin.prefix");
 
-		getLogger().info("Loading Commands...");
+		getLogger().info("Loading Classes...");
 		setupLamp();
+		new InternalUtil(this);
+		new SkillAdvancer(this);
 
-		getLogger().info("Loading options...");
+		getLogger().info("Loading Options & Features...");
 		loadEffects();
 
 		getLogger().info("Complete!");
@@ -94,6 +108,8 @@ public final class SilverSkillz extends JavaPlugin implements SilverConfig, List
 		}
 	}
 
+	private static final int PD = 5;
+
 	private void loadEffects() {
 		new BukkitRunnable() {
 			public void run() {
@@ -101,25 +117,21 @@ public final class SilverSkillz extends JavaPlugin implements SilverConfig, List
 					SilverPlayer sp = new SilverPlayer(p);
 					if (!(sp.hasPotionEffects())) return;
 
-					int hLevel = sp.getSkill(Skill.HUSBANDRY).getLevel();
-					int aLevel = sp.getSkill(Skill.AQUATICS).getLevel();
-
-					if (hLevel >= 25 && hLevel < 50) {
-						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 0, true, false, false));
-					} else if (hLevel >= 50 && hLevel < 75) {
-						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 1, true, false, false));
-					} else if (hLevel >= 75 && hLevel < 100) {
-						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 2, true, false, false));
-					} else if (hLevel == 100) {
-						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 2000000, 3, true, false, false));
+					int h = sp.getSkill(Skill.HUSBANDRY).getLevel();
+					int am = (int) Math.floor((double) h / 25);
+					if (h >= 25){
+						p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, PD, am - 1, true, false));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, PD, am - 1, true, false));
 					}
 
-					if (aLevel > 50) {
-						p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 200000, 1, true, false, false));
+					int a = sp.getSkill(Skill.AQUATICS).getLevel();
+
+					if (a > 50) {
+						p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, PD, 1, true, false, false));
 					}
 				}
 			}
-		}.runTaskTimer(this, 0, 4);
+		}.runTaskTimer(this, 0, 3);
 	}
 
 	// Config Impl
