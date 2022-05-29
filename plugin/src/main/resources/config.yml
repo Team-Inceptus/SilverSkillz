@@ -1,0 +1,16 @@
+# ${project.name} v${plugin.version}
+#
+# Created by GamerCoder215
+
+# Language of SilverSkillz
+#
+# Available Languages:
+# - en (English)
+# - es (Spanish / Español)
+# - de (German / Deutsch)
+# - fr (French / Français)
+#
+Language: en
+
+# Whether or not Notifications should be displayed.
+Notifications: true

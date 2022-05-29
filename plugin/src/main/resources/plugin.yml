@@ -1,0 +1,48 @@
+name: ${project.name}
+main: us.teaminceptus.silverskillz.SilverSkillz
+version: ${plugin.version}
+api-version: ${plugin.apiversion}
+description: ${project.description}
+load: STARTUP
+permissions:
+  silverskillz.*:
+    default: op
+    description: Access to all SilverSkillz Permissions
+    children:
+      silverskillz.command: true
+  # Commands
+  silverskillz.command:
+    default: op
+    description: Access to all SilverSkillz commands
+    children:
+      silverskillz.command.skill: true
+      silverskillz.command.addprogress: true
+      silverskillz.command.resetprogress: true
+      silverskillz.command.settings: true
+      silverskillz.command.removeprogress: true
+      silverskillz.command.skreload: true
+      silverskillz.user: true
+  silverskillz.command.skill:
+    default: true
+    description: Access to /skill command
+  silverskillz.command.addprogress:
+    default: op
+    description: Access to /addprogress
+  silverskillz.command.resetprogress:
+    default: op
+    description: Access to /resetprogress
+  silverskillz.command.settings:
+    default: true
+    description: Access to player's personal settings (/settings or /playersettings)
+  silverskilz.command.removeprogress:
+    default: op
+    description: Access to /removeprogress or /lessprogress
+  silverskillz.command.skreload:
+    default: op
+    description: Access to /skreload, which reloads configs
+  # User Commands
+  silverskillz.user.abilities:
+    description: Access to list available abilities unlocked through leveling up skills
+    default: true
+
+    

@@ -1,9 +1,20 @@
-# SilverSkillz Lite
+# SilverSkillz
 > Edit your minecraft experience with many new skills!
 
-Balance your minecraft life with many new skills! More coming soon!
+Balance your minecraft life with many new, unique, and fun skills!
 
-**This is the Lite Version, meaning that updates are more to come out on the free version.**
+<details>
+    <summary>About</summary>
+
+SilverSkillz is a lightweight and feature-packed plugin for skills.
+
+What makes us different? Quality. We're optimized, efficient, and high-quality.
+</details>
+
+## SilverSkillz API
+[![](https://jitci.com/gh/Team-Inceptus/SilverSkillz/svg)](https://jitci.com/gh/Team-Inceptus/SilverSkillz)
+
+SilverSkillz features a rich API with good documentation to integrate with SilverSkillz.
 
 ## Screenshots
 <img src="https://cdn.discordapp.com/attachments/829075817509290036/909221899555442688/unknown.png" alt="drawing" style="width:480px;"/>
