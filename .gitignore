@@ -1,10 +1,4 @@
-.classpath
+.idea/
 .gitattributes
-.project
-bin/
-.settings/
-.replit
-.breakpoints
-/target/
-src/us/teaminceptus/silverskillz/premium/License.java
-src/us/teaminceptus/silverskillz/premium/PremiumUtils.java
+*.iml
+*.class
