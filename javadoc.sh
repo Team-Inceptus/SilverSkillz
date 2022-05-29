@@ -22,6 +22,8 @@ done
 cp -Rfv ./docs/* ./
 rm -rf ./docs
 
+echo "silverskillz.teaminceptus.us" > CNAME
+
 git add .
 git branch -D gh-pages
 git branch -m gh-pages
