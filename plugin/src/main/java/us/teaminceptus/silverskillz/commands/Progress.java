@@ -8,17 +8,30 @@ import us.teaminceptus.silverskillz.api.SilverConfig;
 import us.teaminceptus.silverskillz.api.SilverPlayer;
 import us.teaminceptus.silverskillz.api.skills.Skill;
 
-@Command("progress")
+@Command({"progress", "prog"})
 public final class Progress {
 
     protected SilverSkillz plugin;
 
     public Progress(SilverSkillz plugin) {
         this.plugin = plugin;
-        plugin.getHandler().register(this);
+        plugin.getHandler().register(this, new ProgressAliases(this));
     }
 
-    @Command({"addprogress", "addprog"})
+    @Subcommand({"set", "setpoints"})
+    @Usage("/setprogress <target> [amount] [skill]")
+    @Description("Sets progress for another Player.")
+    @CommandPermission("silverskillz.command.setprogress")
+    public void set(CommandSender sender, SilverPlayer target, @Default("100") double amount, @Optional Skill skill) {
+        if (skill != null) {
+            target.getSkill(skill).setProgress(amount);
+            sender.sendMessage(SilverConfig.getMessage("response.set"));
+        } else {
+            for (Skill s : Skill.values()) target.getSkill(s).setProgress(amount);
+            sender.sendMessage(SilverConfig.getMessage("response.set_all"));
+        }
+    }
+
     @Subcommand({"add", "addpoints"})
     @Usage("/addprogress <target> [amount] [skill]")
     @Description("Adds progress to another Player.")
@@ -33,7 +46,6 @@ public final class Progress {
         }
     }
 
-    @Command({"removeprogress", "removeprog"})
     @Subcommand({"remove", "rm", "removepoints"})
     @Usage("/removeprogress <target> [amount] [skill]")
     public void remove(CommandSender sender, SilverPlayer target, @Default("100") double amount, @Optional Skill skill) {
@@ -46,7 +58,6 @@ public final class Progress {
         }
     }
 
-    @Command({"resetprogress", "resetprog"})
     @Subcommand("reset")
     @Usage("/resetprogress <target> [skill]")
     @Description("Resets a Player's Progress.")
