@@ -1,4 +1,4 @@
-name: Build Project
+name: Build JavaDocs
 
 on:
   push:
@@ -10,12 +10,8 @@ on:
 
 jobs:
 
-  build:
-    strategy:
-      matrix:
-        java-version: ['17']
-
-    name: Build
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,7 +20,10 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
-          java-version: ${{ matrix.java-version }}
+          java-version: '16'
       - name: Build Project
         run: mvn package clean install
+      - name: Build Javadocs
+        run: bash javadoc.sh
+
 
