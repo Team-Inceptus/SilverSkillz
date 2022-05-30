@@ -27,7 +27,7 @@ public final class Settings implements Listener {
 
     private static final Material ON = Material.LIME_CONCRETE;
     private static final Material OFF = Material.RED_CONCRETE;
-    protected SilverSkillz plugin;
+    protected final SilverSkillz plugin;
 
     private static String off;
     private static String on;

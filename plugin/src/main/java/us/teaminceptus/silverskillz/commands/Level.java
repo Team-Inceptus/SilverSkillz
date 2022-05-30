@@ -11,7 +11,7 @@ import us.teaminceptus.silverskillz.api.skills.Skill;
 @Command({"level", "lvl"})
 public final class Level {
 
-    protected SilverSkillz plugin;
+    protected final SilverSkillz plugin;
 
     public Level(SilverSkillz plugin) {
         this.plugin = plugin;

@@ -12,7 +12,7 @@ import us.teaminceptus.silverskillz.api.language.Language;
 import java.io.File;
 
 public final class ReloadConfig {
-    protected SilverSkillz plugin;
+    protected final SilverSkillz plugin;
 
     public ReloadConfig(SilverSkillz plugin) {
         this.plugin = plugin;

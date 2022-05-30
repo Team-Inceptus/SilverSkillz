@@ -33,7 +33,7 @@ import static us.teaminceptus.silverskillz.api.skills.SkillUtils.getInventoryPla
 
 public class InternalUtil implements Listener {
 
-    SilverSkillz plugin;
+    final SilverSkillz plugin;
     final String inventoryName;
 
     InternalUtil(SilverSkillz plugin) {

@@ -1,7 +1,5 @@
 package us.teaminceptus.silverskillz.commands;
 
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import revxrsal.commands.annotation.Command;
@@ -13,7 +11,7 @@ import us.teaminceptus.silverskillz.api.skills.Skill;
 
 public final class Skills {
 	
-	protected SilverSkillz plugin;
+	protected final SilverSkillz plugin;
 	
 	public Skills(SilverSkillz plugin) {
 		this.plugin = plugin;

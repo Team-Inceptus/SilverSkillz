@@ -11,7 +11,7 @@ import us.teaminceptus.silverskillz.api.skills.Skill;
 @Command({"progress", "prog"})
 public final class Progress {
 
-    protected SilverSkillz plugin;
+    protected final SilverSkillz plugin;
 
     public Progress(SilverSkillz plugin) {
         this.plugin = plugin;
