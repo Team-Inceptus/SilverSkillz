@@ -43,14 +43,14 @@ import java.util.*;
  */
 public final class SkillAdvancer implements Listener {
 	
-	protected SilverSkillz plugin;
+	protected final SilverSkillz plugin;
 	
 	public SkillAdvancer(SilverSkillz plugin) {
 		this.plugin = plugin;
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 	
-	private static Random r = new Random();
+	private static final Random r = new Random();
 	
 	@EventHandler
 	public void incrementSkill(PlayerAdvancementDoneEvent e) {
@@ -124,7 +124,7 @@ public final class SkillAdvancer implements Listener {
 	}
 	
 	// Map Cache for Enchant Offers
-	private Map<UUID, EnchantmentOffer[]> offers = new HashMap<>();
+	private final Map<UUID, EnchantmentOffer[]> offers = new HashMap<>();
 	
 	@EventHandler
 	public void skillEffect(PrepareItemEnchantEvent e) {
@@ -227,17 +227,12 @@ public final class SkillAdvancer implements Listener {
 		Player p = e.getPlayer();
 		SilverPlayer sp = new SilverPlayer(p);
 
-		int increase = (int) Math.floor(sp.getSkill(Skill.COLLECTOR).getLevelDouble() / 20);
-		if (increase != 0) { 
-			for (int i = 0; i < increase; i++) {
-				if (e.getMaterial() != null) {
-					p.incrementStatistic(e.getStatistic(), e.getMaterial(), e.getNewValue() - e.getPreviousValue());
-				} else if (e.getEntityType() != null) {
-					p.incrementStatistic(e.getStatistic(), e.getEntityType(), e.getNewValue() - e.getPreviousValue());
-				} else {
-					p.incrementStatistic(e.getStatistic(), e.getNewValue() - e.getPreviousValue());
-				}
-			}
+		int increase = (int) Math.floor(sp.getSkill(Skill.COLLECTOR).getLevelDouble() / 20) + Math.max(e.getNewValue() - e.getPreviousValue(), 1);
+		Statistic stat = e.getStatistic();
+		if (increase != 0) {
+			if (e.getMaterial() != null) p.incrementStatistic(stat, e.getMaterial(), increase);
+			else if (e.getEntityType() != null) p.incrementStatistic(stat, e.getEntityType(), increase);
+			else p.incrementStatistic(stat, increase);
 		}
 	}
 

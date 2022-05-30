@@ -13,8 +13,10 @@ import revxrsal.commands.bukkit.BukkitCommandHandler;
 import revxrsal.commands.exception.CommandErrorException;
 import us.teaminceptus.silverskillz.api.SilverConfig;
 import us.teaminceptus.silverskillz.api.SilverPlayer;
+import us.teaminceptus.silverskillz.api.artifact.Artifact;
 import us.teaminceptus.silverskillz.api.language.Language;
 import us.teaminceptus.silverskillz.api.skills.Skill;
+import us.teaminceptus.silverskillz.artifact.ArtifactUtils;
 import us.teaminceptus.silverskillz.commands.*;
 import us.teaminceptus.silverskillz.skills.SkillAdvancer;
 
@@ -94,9 +96,13 @@ public final class SilverSkillz extends JavaPlugin implements SilverConfig, List
 		setupLamp();
 		new InternalUtil(this);
 		new SkillAdvancer(this);
+		new ArtifactUtils(this);
 
 		getLogger().info("Loading Options & Features...");
 		loadEffects();
+		for (Artifact a : Artifact.values()) {
+			Bukkit.addRecipe(a.getRecipe());
+		}
 
 		getLogger().info("Complete!");
 	}
