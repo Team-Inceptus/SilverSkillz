@@ -15,7 +15,14 @@ import us.teaminceptus.silverskillz.api.SilverConfig;
  */
 public final class SkillUtils {
 
-	static String withSuffix(double count) {
+	/**
+	 * Adds a suffix to a health count.
+	 * <p>
+	 * Ex: {@code withSuffix(1000)} = 1K
+	 * @param count Amount to test
+	 * @return Amount with Suffix
+	 */
+	public static String withSuffix(double count) {
 		if (count < 1000) return "" + count;
 		int exp = (int) (Math.log(count) / Math.log(1000));
 		return String.format("%.1f%c", count / Math.pow(1000, exp), "KMBTQISPOND".charAt(exp-1));
